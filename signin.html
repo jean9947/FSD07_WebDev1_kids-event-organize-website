@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sports Equipment</title>
+    <meta name="author" content="Chih-Yin, Chen" />
+    <meta name="description" content="Sports Gear, Equipment & Accessories" />
+    <meta name="keywords" content="sport, gear, equipment, accessory" />
+    <link rel="stylesheet" href="./style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <div id="freeshipping">
+        FREE shipping on all orders over $50.&nbsp;
+        <a href=""><strong>LEARN MORE</strong></a>
+      </div>
+    </header>
+    <header>
+      <div id="second">
+        <input
+          type="search"
+          id="query"
+          name="search"
+          placeholder="Search"
+          aria-label="Search through site content"
+        />
+        <button><i class="fa fa-search"></i></button>
+        <a href="./homepage.html" id="logo"
+          ><img src="./images/logo.png" alt="logo"
+        /></a>
+        <a href="./signin.html">Sign in</a>&emsp;
+        <a href="./wishlist.html">&#9829;</a>&emsp;
+        <a href="./cart.html"><i class="fa fa-shopping-cart"></i></a>&emsp;
+        <a href="">FR</a>&emsp;
+      </div>
+    </header>
+
+    <nav class="topnav" id="top-nav">
+      <ul>
+        <li><a href="./activity.html" id="activities">Activities</a></li>
+        <li><a href="./women.html" id="women">Women</a></li>
+        <li><a href="./men.html" id="men">Men</a></li>
+        <li><a href="./kids.html" id="kids">Youth</a></li>
+        <li><a href="./brands.html" id="brands">Brands</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <h1>Welcome Back</h1>
+
+      <form action="homepage.html" method="get">
+        <div class="logIn">
+          <label id="uname">Email</label><br />
+          <input type="email" placeholder="Enter Email" name="email" required />
+          <br />
+          <br />
+          <label id="psw">Password</label><br />
+          <input
+            type="password"
+            placeholder="Enter Password"
+            name="psw"
+            required
+          />
+          <br />
+          <br />
+          <label id="remember">
+            <input type="checkbox" checked="checked" name="remember" /> Remember
+            me
+          </label>
+          <br />
+          <br />
+          <button type="submit">Login</button>
+          <br />
+          <br />
+          <p>Forgot <a href="#">password?</a></p>
+          <p>Don't have an account? <a href="#">Sign up here</a></p>
+        </div>
+      </form>
+    </main>
+
+    <footer class="footer">
+      <div id="signUp">
+        <i class="fa fa-envelope" style="font-size: 48px"></i>
+        <br />
+        <br />
+        <h2>Up to 15% off your first order</h2>
+        <br />
+        <p>
+          be the first to know about new drops and sales.
+          <br />
+          <br />
+          <input type="text" placeholder="email address" id="email" />
+          <button type="submit" name="email" value="email">Sign Up</button>
+        </p>
+      </div>
+
+      <div id="contact">
+        <div>
+          <ul>
+            <li id="help"><strong>Help center</strong></li>
+            <li><a href="">Shipping</a></li>
+            <li><a href="">Returns</a></li>
+            <li><a href="">Warranty</a></li>
+            <li><a href="">Contact us</a></li>
+            <li><a href="">FAQ</a></li>
+          </ul>
+        </div>
+        <ul>
+          <li id="aboutus"><strong>About us</strong></li>
+          <li><a href="">Sustainability</a></li>
+          <li><a href="">Our Story</a></li>
+          <li>
+            <div id="socialMedia">
+              <a href="" id="fb" class="icon facebook"></a>
+              <span><i class="fab fa-facebook"></i></span>&nbsp;
+              <a href="" id="ins" class="icon instagram"></a>
+              <span><i class="fab fa-instagram"></i></span>&nbsp;
+              <a href="" id="tiktok" class="icon tiktok"></a>
+              <span><i class="fab fa-tiktok"></i></span>&nbsp;
+              <a href="" id="youtube" class="icon youtube"></a>
+              <span><i class="fab fa-youtube"></i></span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div id="copyright">
+        <p>Sports Equipment &copy; 2023</p>
+      </div>
+    </footer>
+  </body>
+</html>
