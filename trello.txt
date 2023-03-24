@@ -10,7 +10,8 @@ admin: update users
 admin: delete users
 
 customers: view events
-customers: add events
-customers: update events
+customers: add event
+customers: update event
+customers: cancel event
 customers: view mybookings
 
