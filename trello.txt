@@ -2,15 +2,17 @@ users: register
 users: login
 
 admin: view bookings
-admin: 
+admin: update bookings
 
 admin: add users
 admin: view users
 admin: update users
 admin: delete users
 
-customer can view events
-customer can add events
-// customer can delete events
-customer can view mybookings
+customers: view events
+customers: add event
+customers: update event
+customers: cancel event
+customers: view mybookings
 
+customers: payment

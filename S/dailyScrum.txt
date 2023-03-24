@@ -28,3 +28,4 @@
 3. Need assistance / figure things out
 - how to use password_hash() to encrypt passwords
 - review the video provided by Professor
+
