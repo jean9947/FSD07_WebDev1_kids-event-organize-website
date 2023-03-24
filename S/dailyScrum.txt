@@ -1,0 +1,31 @@
+2023/03/24 Siyi
+1. Done / not done since the last scrum:
+- created project plan
+- finished design database and use case diagram
+- created website mockup
+
+2. To do until the next Scrum:
+- setup Trello cards
+- database redesign
+- work on the event list page
+
+3. Need assistance / figure things out
+- discover other helpful libraries for our project (Selenium?? fullcalendar??)
+- review the video provided by Professor
+
+
+2023/03/24 ChihYin
+
+1. Done / not done since the last scrum:
+- created project plan
+- finished design database and use case diagram
+  
+2. To do until the next Scrum:
+- setup Trello cards
+- database redesign
+- work on the register page
+
+3. Need assistance / figure things out
+- how to use password_hash() to encrypt passwords
+- review the video provided by Professor
+
