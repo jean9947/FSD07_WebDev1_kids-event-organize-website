@@ -10,19 +10,19 @@
 {% endif %}
 
 
-<form action="" method="post">
+<form method="POST" enctype = "multipart/form-data">
     <label id="firstName">First Name</label><br />
-    <input  type="text" placeholder="Enter First Name" name="firstName" value="{{ v.firstName }}" required /><br /><br />
+    <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />
     <label id="lastName">Last Name</label><br />
-    <input  type="text" placeholder="Enter Last Name" name="lastName" value="{{ v.lastName }}" required /><br /><br />
+    <input  type="text"name="lastName" value="{{ v.lastName }}" required /><br /><br />
     <label id="username">Username</label><br />
-    <input  type="text" placeholder="Enter username" name="username" value="{{ v.username }}" required /><br /><br />
+    <input  type="text" name="username" value="{{ v.username }}" required /><br /><br />
     <label id="psw">Password</label><br />
-    <input  type="password" placeholder="Enter Password" name="password" value="{{ v.password }}" required /><br /><br />
-    <label id="phone">Phone Number</label><br />
-    <input  type="tel" placeholder="123-456-7890" name="phone" value="{{ v.phone }}" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required /><br /><br />
+    <input  type="password"  name="password" value="{{ v.password }}" required /><br /><br />
+    <label id="phoneNumber">Phone Number</label><br />
+    <input  type="tel" placeholder="000-000-0000" name="phoneNumber" value="{{ v.phoneNumber }}" required /><br /><br />
     <label id="uname">Email</label><br />
-    <input type="email" placeholder="Enter Email" name="email" value="{{ v.email }}" required /><br /><br />
+    <input type="email" name="email" value="{{ v.email }}" required /><br /><br />
     <input type="submit" value="Register">
 </form>
 
