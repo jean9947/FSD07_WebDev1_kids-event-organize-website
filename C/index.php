@@ -9,6 +9,7 @@ use Slim\Exception\HttpNotFoundException;
 
 
 require __DIR__ . '/vendor/autoload.php';
+// require_once 'config.php'; // contains database configuration
 
 
 session_start();
@@ -81,9 +82,21 @@ $app->get('/register', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'register.html.twig');
 });
 
+// *Check if username is taken using AJAX*
+$app->post('/checkUsername', function (Request $request, Response $response) {
+    $username = $request->getParam('username');
+    $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
+
+    if ($result) {
+        $response->getBody()->write(json_encode(array('taken' => true)));
+    } else {
+        $response->getBody()->write(json_encode(array('taken' => false)));
+    }
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
 // SATE 2&3: receiving a submission
 $app->post('/register', function ($request, $response, $args) {
-    // extract values submitted
     $data = $request->getParsedBody();
     $firstName = $data['firstName'];
     $lastName = $data['lastName'];
@@ -103,23 +116,18 @@ $app->post('/register', function ($request, $response, $args) {
         $errorList []= "Last name must be 2-100 characters long";
         $lastName = "";
     }
-    // validate username and check if it's already registered
+    // validate username and check if it's taken
     if (preg_match('/^[a-z][a-z0-9_]{3,19}$/', $username) !== 1) {
         $errorList[] = "Username must be made up of 4-20 letters, digits, or underscore. The first character must be a letter";
         $username = "";
-    } 
-    // else { 
-    //     $result = mysqli_query($link, sprintf("SELECT userId FROM users WHERE username='%s'",
-    //         mysqli_real_escape_string($link, $username)));
-    //     if (!$result) {
-    //         die("SQL Query failed: " . mysqli_error($link));
-    //     }
-    //     $userRecord = mysqli_fetch_assoc($result);
-    //     if ($userRecord) {
-    //         $errorList[] ="This username is already registered";
-    //         $username = "";
-    //     }
-    // }
+    } else {
+        $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
+        if ($userRecord) {
+            $errorList[] = "This username is already registered";
+            $username = "";
+          }
+    }
+
     // validate password
     if (
         strlen($password) < 6 || strlen($password) > 100
@@ -153,6 +161,7 @@ $app->post('/register', function ($request, $response, $args) {
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
         'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
         return $this->get('view')->render($response, 'registered.html.twig');
+        // return $response->withStatus(302)->withHeader('Location', '/registered');
     }
 });
 
@@ -169,37 +178,15 @@ $app->post('/login', function (Request $request, Response $response, $args) {
     $username = $data['username'];
     $password = $data['password'];
 
-    // Check if username and password are correct
-    $isValid = validateUser($username, $password);
-    if (!$isValid) {
-        $response->withStatus(401)->getBody()->write('Invalid username or password');
-        return $response;
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
+    $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
+
+    if (!$loginSuccessful) {
+        $response->getBody()->write("Invalid username or password");
     } else {
-        // user session and redirect to homepage
-        return $this->get('view')->render($response, 'homepage.html.twig');
+        return $this->get('view')->render($response, 'loggedin.html.twig');
     }
 });
-
-try {
-    $db = new PDO('mysql:host=localhost;dbname=WebDev1_Playroom;charset=utf8', 'WebDev1_Playroom', 's(t2R[mk[6nZ0ZGY');
-} catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
-}
-
-function validateUser($username, $password) {
-    global $db;
-    $result = $db->prepare("SELECT * FROM users WHERE username = :username");
-    $result->bindParam(':username', $username);
-    $result->execute();
-    $userRecord = $result->fetch(PDO::FETCH_ASSOC);
-
-    if ($userRecord && password_verify($password, $userRecord['password'])) {
-        // Username and password are correct
-        return true;
-    } else {
-        return false;
-    }
-}
 
 
 

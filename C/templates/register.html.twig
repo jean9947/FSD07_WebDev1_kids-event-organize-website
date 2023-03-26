@@ -9,20 +9,47 @@
     </ul>
 {% endif %}
 
-<form method="POST" enctype = "multipart/form-data">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    // Listen to button click event
+    document.getElementById('submit').addEventListener('click', function(event) {
+    event.preventDefault();
+    
+    // Get username input value
+    var username = document.getElementById('username').value;
+    
+    // Send AJAX request to check if username is taken
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/checkUsername', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+        var response = JSON.parse(this.responseText);
+        if (response.taken) {
+        document.getElementById('username-error').innerHTML = "Username already taken";
+        } else {
+        document.getElementById('registerForm').submit();
+        }
+    };
+    xhr.send('username=' + username);
+    });
+</script>
+
+<form method="POST" enctype = "multipart/form-data" id="registerForm">
     <label id="firstName">First Name</label><br />
     <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />
     <label id="lastName">Last Name</label><br />
     <input  type="text"name="lastName" value="{{ v.lastName }}" required /><br /><br />
     <label id="username">Username</label><br />
     <input  type="text" name="username" value="{{ v.username }}" required /><br /><br />
+    <span id="username-error" style="color: red;"></span>
     <label id="password">Password</label><br />
     <input  type="password"  name="password" value="{{ v.password }}" required /><br /><br />
     <label id="phoneNumber">Phone Number</label><br />
     <input  type="tel" placeholder="000-000-0000" name="phoneNumber" value="{{ v.phoneNumber }}" required /><br /><br />
     <label id="uname">Email</label><br />
     <input type="email" name="email" value="{{ v.email }}" required /><br /><br />
-    <input type="submit" value="Register">
+    <input type="submit" id="submit" value="Register">
 </form>
 
 {% endblock content %}
