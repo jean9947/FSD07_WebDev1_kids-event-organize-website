@@ -10,9 +10,11 @@
 2023/03/26 ChihYin
 
 1. Done / not done since the last scrum:
-
+- login form completed
+- login as an Admin or a customer
+- finish all the validation in register form
 2. To do until the next Scrum:
-
+- add Ajax in register form
 3. Need assistance / figure things out
 
 
