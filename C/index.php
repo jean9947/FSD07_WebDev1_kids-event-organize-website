@@ -181,10 +181,12 @@ $app->post('/login', function (Request $request, Response $response, $args) {
     $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
     $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
 
-    if (!$loginSuccessful) {
-        $response->getBody()->write("Invalid username or password");
-    } else {
+    if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
+        return $this->get('view')->render($response, 'Admin_loggedin.html.twig');
+    } elseif ($loginSuccessful) { // logged in as a customer
         return $this->get('view')->render($response, 'loggedin.html.twig');
+    } else {
+        $response->getBody()->write("Invalid username or password");
     }
 });
 
