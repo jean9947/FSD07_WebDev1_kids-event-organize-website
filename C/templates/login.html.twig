@@ -13,9 +13,16 @@
 <form method="POST" enctype = "multipart/form-data">
     <label id="username">Username</label><br />
     <input  type="text" name="username" value="{{ v.username }}" required /><br /><br />
-    <label id="psw">Password</label><br />
+    <label id="password">Password</label><br />
     <input  type="password"  name="password" value="{{ v.password }}" required /><br /><br />
-    <input type="submit" value="Log In">
+    <input type="submit" value="Log In"><br /><br />
+    {# <div class="password_link">
+      <a href="{{ path('user.pass') }}">{{ 'Forgot your password?'|t }}</a>
+    </div>
+    <div class="register_link">
+      <a href="{{ path('user.register') }}">{{ 'Register a new account'|t }}</a>
+    </div> #}
 </form>
+
 
 {% endblock content %}

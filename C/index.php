@@ -32,7 +32,7 @@ $log->pushProcessor(function ($record) {
 // DATABASE SETUP
 DB::$dbName = 'WebDev1_Playroom';
 DB::$user = 'WebDev1_Playroom';
-DB::$password = 'GCe!]g[]6fRD5yvy';
+DB::$password = 's(t2R[mk[6nZ0ZGY';
 DB::$host = 'localhost';
 
 
@@ -55,18 +55,27 @@ $app->add(TwigMiddleware::createFromContainer($app));
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
 // URL HANDLERS GO BELOW
-
 $app->get('/faildb', function (Request $request, Response $response, array $args) {
-    DB::query("SELECT *** FROM wrong");
+    try {
+        DB::query("SELECT *** FROM wrong");
+    } catch (\Exception $e) {
+        $response->getBody()->write("Database error: " . $e->getMessage());
+        return $response->withStatus(500);
+    }
     $response->getBody()->write("This should never be displayed");
     return $response;
 });
 
 
 
+/** Homepage */
+//display home page
+$app->get('/', function (Request $request, Response $response, $args) {
+    return $this->get('view')->render($response, 'home.html.twig');
+});
+
 
 /**Register */
-
 // STATE 1: first display of the form
 $app->get('/register', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'register.html.twig');
@@ -155,16 +164,51 @@ $app->get('/login', function ($request, $response, $args) {
 });
 
 // SATE 2&3: receiving a submission
-$app->post('/login', function ($request, $response, $args) {
-    // extract values submitted
+$app->post('/login', function (Request $request, Response $response, $args) {
     $data = $request->getParsedBody();
     $username = $data['username'];
     $password = $data['password'];
-    
-    $errorList = [];
 
-
+    // Check if username and password are correct
+    $isValid = validateUser($username, $password);
+    if (!$isValid) {
+        $response->withStatus(401)->getBody()->write('Invalid username or password');
+        return $response;
+    } else {
+        // user session and redirect to homepage
+        return $this->get('view')->render($response, 'homepage.html.twig');
+    }
 });
+
+try {
+    $db = new PDO('mysql:host=localhost;dbname=WebDev1_Playroom;charset=utf8', 'WebDev1_Playroom', 's(t2R[mk[6nZ0ZGY');
+} catch (PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+
+function validateUser($username, $password) {
+    global $db;
+    $result = $db->prepare("SELECT * FROM users WHERE username = :username");
+    $result->bindParam(':username', $username);
+    $result->execute();
+    $userRecord = $result->fetch(PDO::FETCH_ASSOC);
+
+    if ($userRecord && password_verify($password, $userRecord['password'])) {
+        // Username and password are correct
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+
+
+
+
+
+
+
 
 // DO NOT FORGET APP->RUN() !
 $app->run();
