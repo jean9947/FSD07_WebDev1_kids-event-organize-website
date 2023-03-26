@@ -6,11 +6,73 @@
         {% block addHead %}
         {% endblock %}
     </head>
+    <header>
+    {% block header %}
+      <nav>
+        <a
+          href="http://127.0.0.1:5500/FinalProject/HomePage.html"
+          id="logoLink"
+        >
+          <img
+            src="./images/header-logo.png"
+            alt="logo"
+            style="padding-top: 10px"
+          />
+        </a>
+        <ul class="nav justify-content-center" id="navBar">
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              aria-current="page"
+              href="http://127.0.0.1:5500/FinalProject/HomePage.html"
+              >HOME</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="http://127.0.0.1:5500/FinalProject/EventPage.html"
+              >EVENT</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="http://127.0.0.1:5500/FinalProject/PartyPage.html"
+              >PARTY</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="http://127.0.0.1:5500/FinalProject/BlogPage.html"
+              >BLOG</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="http://127.0.0.1:5500/FinalProject/GalleryPage.html"
+              style="color: rgb(250, 115, 43)"
+              >GALLERY</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="http://127.0.0.1:5500/FinalProject/AboutUsPage.html"
+              >ABOUT US</a
+            >
+          </li>
+        </ul>
+      </nav>
+       {% endblock %}
+    </header>
     <body>
         <div id="centeredContent">{% block content %}{% endblock %}
             <div id="footer">
                 {% block footer %}
-                    <br>© 2023 <span id="three" style="font-weight: bolder">Playroom</span>, All Rights Reserved
+                    <br><p>© 2023 <span id="three" style="font-weight: bolder">Playroom</span>, All Rights Reserved</p>
                 {% endblock %}
             </div>
         </div>
