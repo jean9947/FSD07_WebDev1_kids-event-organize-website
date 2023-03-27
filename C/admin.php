@@ -106,7 +106,7 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
                         'password' => $password, 
                         'phoneNumber' => $phoneNumber, 
                         'email' => $email,];
-        return $this->get('view')->render($response, 'register.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+        return $this->get('view')->render($response, 'admin_adduser.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - add new user to the DB
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
         'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
@@ -115,9 +115,115 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
 });
 
 // Delete user
+$app->get('/admin/deleteuser/{id}', function ($request, $response, $args) {
+    $id = $args['id'];
+    // Get the user record based on the provided id
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    if (!$userRecord) {
+        $response->getBody()->write("Error: User not found");
+    }
+    // Display the delete confirmation form
+    return $this->get('view')->render($response, 'admin_deleteuser.html.twig', ['userRecord' => $userRecord]);
+});
+
+$app->post('/admin/deleteuser/{id}', function ($request, $response, $args) {
+    $id = $args['id'];
+    // Get the user record based on the provided id
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    if (!$userRecord) {
+        $response->getBody()->write("Error: user not found");
+    }
+    // Delete the user from the database
+    DB::delete('users', 'userId=%d', $id);
+    // Display a success message
+    return $this->get('view')->render($response, 'admin_deleteduser.html.twig');
+});
+
 
 // Update user
+$app->get('/admin/updateuser/{id}', function ($request, $response, $args) {
+    $id = $args['id'];
+    // Get the user record based on the provided id
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    if (!$userRecord) {
+        $response->getBody()->write("Error: user not found");
+    }
+    return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['userRecord' => $userRecord]);
+});
 
+$app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
+    $id = $args['id'];
+    // Get the user record based on the provided id
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    if (!$userRecord) {
+        $response->getBody()->write("Error: user not found");
+    }
+
+    $data = $request->getParsedBody();
+    $firstName = $data['firstName'];
+    $lastName = $data['lastName'];
+    $username = $data['username'];
+    $password = $data['password'];
+    $phoneNumber = $data['phoneNumber'];
+    $email = $data['email'];
+    
+    $errorList = [];
+    // validate firstname
+    if (strlen($firstName) < 2 || strlen($firstName) > 100) {
+        $errorList []= "First name must be 2-100 characters long";
+        $firstName = "";
+    }
+    // validate lastname
+    if (strlen($lastName) < 2 || strlen($lastName) > 100) {
+        $errorList []= "Last name must be 2-100 characters long";
+        $lastName = "";
+    }
+    // validate username and check if it's taken
+    if (preg_match('/^[a-z][a-z0-9_]{3,19}$/', $username) !== 1) {
+        $errorList[] = "Username must be made up of 4-20 letters, digits, or underscore. The first character must be a letter";
+        $username = "";
+    } else {
+        $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
+        if ($userRecord) {
+            $errorList[] = "This username is already registered";
+            $username = "";
+          }
+    }
+    // validate password
+    if (
+        strlen($password) < 6 || strlen($password) > 100
+        || (preg_match("/[A-Z]/", $password) !== 1)
+        || (preg_match("/[a-z]/", $password) !== 1)
+        || (preg_match("/[0-9]/", $password) !== 1)
+    ) {
+        $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
+    }
+    // validate phone
+    if (preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", $phoneNumber) !== 1) {
+        $errorList[] ="Phone number format is 000-000-0000";
+    }
+    // validate email
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        $errorList[] = "Email does not look valid";
+        $email = "";
+    }
+
+
+    if ($errorList) { // STATE 2: errors
+        $valuesList = ['firstName' => $firstName, 
+                        'lastName' => $lastName, 
+                        'username' => $username, 
+                        'password' => $password, 
+                        'phoneNumber' => $phoneNumber, 
+                        'email' => $email,];
+        return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+    } else { // STATE 3: sucess - update the user from the database
+    DB::update('users', ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
+    'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email]);
+    // Display a success message
+    return $this->get('view')->render($response, 'admin_updateduser.html.twig');
+    }
+});
 
 
 

@@ -101,7 +101,7 @@ $app->post('/register', function ($request, $response, $args) {
         return $this->get('view')->render($response, 'register.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - add new user to the DB
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-        'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
+        'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "admin"]);
         return $this->get('view')->render($response, 'registered.html.twig');
     }
 });
@@ -130,6 +130,7 @@ $app->post('/login', function (Request $request, Response $response, $args) {
         return $this->get('view')->render($response, 'loggedin.html.twig');
     } else {
         $response->getBody()->write("Invalid username or password");
+        return $reponse;
     }
 });
 
