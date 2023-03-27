@@ -6,22 +6,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway%3A300%2C400%2C500%2C600%2C700%7CBaloo+Chettan%3A300%2C400%2C500%2C600%2C700%7CAmatic+SC%3A300%2C400%2C500%2C600%2C700&subset=latin-ext%2Cgreek%2Cgreek-ext&ver=1.0.0"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <title>Playroom-{% block title %}{% endblock %}</title>
+    <title>Admin{% block title %}{% endblock %}</title>
   </head>
   <body>
     <header>
-      {% include 'header.html.twig' %}
+      {% include 'header_admin.html.twig' %}
     </header>
     <main>
       <div class="all">
         {% block content %}
+        <p class="text">You rare loggind in as Admin</p>
         {% endblock %}
-        <div id="information">
-          {% include 'information.html.twig' %}
-        </div>
-        <div id="footer">
-          {% include 'footer.html.twig' %}
-        </div>
       </div>
     </main>
   </body>

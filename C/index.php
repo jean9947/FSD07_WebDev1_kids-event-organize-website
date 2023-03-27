@@ -70,10 +70,10 @@ $app->get('/faildb', function (Request $request, Response $response, array $args
 
 
 /** Homepage */
-//display home page
-$app->get('/', function (Request $request, Response $response, $args) {
+// Get home page
+$app->get('/', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'home.html.twig');
-});
+  });
 
 
 /**Register */
@@ -182,7 +182,7 @@ $app->post('/login', function (Request $request, Response $response, $args) {
     $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
 
     if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
-        return $this->get('view')->render($response, 'Admin_loggedin.html.twig');
+        return $this->get('view')->render($response, 'admin.html.twig');
     } elseif ($loginSuccessful) { // logged in as a customer
         return $this->get('view')->render($response, 'loggedin.html.twig');
     } else {
@@ -191,7 +191,10 @@ $app->post('/login', function (Request $request, Response $response, $args) {
 });
 
 
-
+// Admin
+$app->get('/admin', function ($request, $response, $args) {
+    return $this->get('view')->render($response, 'admin.html.twig');
+  });
 
 
 
