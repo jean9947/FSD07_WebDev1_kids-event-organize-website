@@ -10,6 +10,7 @@ use Slim\Exception\HttpNotFoundException;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+session_start();
 
 // TODO: Add logger here
 use Monolog\Logger;
@@ -29,7 +30,7 @@ $log->pushProcessor(function ($record) {
 // DATABASE SETUP
 DB::$dbName = 'WebDev1_Playroom';
 DB::$user = 'WebDev1_Playroom';
-DB::$password = 'QV1-(NxoiSDWCKw]';
+DB::$password = 's@K/p0/f8BQ9VZFm';
 DB::$host = 'localhost';
 
 
@@ -41,23 +42,6 @@ AppFactory::setContainer($container);
 $container->set('view', function() {
     return Twig::create(__DIR__ . '/templates', ['cache' => __DIR__ . '/tmplcache', 'debug' => true]);
 });
-
-
-
-// flash message
-$container['view']->getEnvironment()->addGlobal('flashMessage', getAndClearFlashMessage());
-function setFlashMessage($message) {
-    $_SESSION['flashMessage'] = $message;
-}
-// returns empty string if no message, otherwise returns string with message and clears is
-function getAndClearFlashMessage() {
-    if (isset($_SESSION['flashMessage'])) {
-        $message = $_SESSION['flashMessage'];
-        unset($_SESSION['flashMessage']);
-        return $message;
-    }
-    return "";
-}
 
 
 // Create App
@@ -80,3 +64,24 @@ $app->get('/faildb', function (Request $request, Response $response, array $args
     $response->getBody()->write("This should never be displayed");
     return $response;
 });
+
+
+// flash message middleware
+$app->add(function ($request, $handler) use ($container) {
+    $container->get('view')->getEnvironment()->addGlobal('flashMessage', getAndClearFlashMessage());
+    return $handler->handle($request);
+});
+
+// function to set a flash message
+function setFlashMessage($message) {
+    $_SESSION['flashMessage'] = $message;
+}
+// function to get and clear a flash message
+function getAndClearFlashMessage() {
+    if (isset($_SESSION['flashMessage'])) {
+        $message = $_SESSION['flashMessage'];
+        unset($_SESSION['flashMessage']);
+        return $message;
+    }
+    return "";
+}

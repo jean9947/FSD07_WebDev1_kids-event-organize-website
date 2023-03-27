@@ -12,14 +12,16 @@ use Slim\Exception\HttpNotFoundException;
 require_once 'init.php';
 
 
-// dashboard
+
+
+// Admin dashboard
 $app->get('/admin', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'admin.html.twig');
 });
 
 
 
-/************************************** Users ************************************************** */
+/************************************** Users - CRUD ************************************************** */
 
 /** VIEW all users */
 $app->get('/admin/users', function ($request, $response, $args) {
@@ -32,19 +34,6 @@ $app->get('/admin/users', function ($request, $response, $args) {
 $app->get('/admin/adduser', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'admin_adduser.html.twig');
 });
-
-// // *Check if username is taken using AJAX*
-// $app->post('/checkUsername', function (Request $request, Response $response) {
-//     $username = $request->getParam('username');
-//     $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
-
-//     if ($result) {
-//         $response->getBody()->write(json_encode(array('taken' => true)));
-//     } else {
-//         $response->getBody()->write(json_encode(array('taken' => false)));
-//     }
-//     return $response->withHeader('Content-Type', 'application/json');
-// });
 
 // SATE 2&3: receiving a submission
 $app->post('/admin/adduser', function ($request, $response, $args) {
@@ -234,7 +223,7 @@ $app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
 
 
 
-/************************************** Bookings ************************************************** */
+/************************************** Bookings - CRUD ************************************************** */
 
 /** VIEW all bookings */
 
@@ -243,3 +232,8 @@ $app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
 /** DELETE booking */
 
 /** UPDATE booking */
+
+
+
+
+/************************************** Events ************************************************** */
