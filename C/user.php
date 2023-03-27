@@ -127,7 +127,9 @@ $app->post('/login', function (Request $request, Response $response, $args) {
         $_SESSION['user'] = $userRecord;
         return $this->get('view')->render($response, 'admin.html.twig');
     } elseif ($loginSuccessful) { // logged in as a customer
-        return $this->get('view')->render($response, 'loggedin.html.twig');
+        // return $this->get('view')->render($response, 'loggedin.html.twig');
+        setFlashMessage("Login successful");
+        return $response->withRedirect("/");   
     } else {
         $response->getBody()->write("Invalid username or password");
         return $reponse;
@@ -137,7 +139,9 @@ $app->post('/login', function (Request $request, Response $response, $args) {
 
 /**Log Out */
 $app->get('/logout', function ($request, $response, $args) {
-    session_unset();
+    session_unset($_SESSION['user']);
     session_destroy();
-    return $this->get('view')->render($response, 'logout.html.twig');
+    // return $this->get('view')->render($response, 'logout.html.twig');
+    setFlashMessage("You've been logged out");
+    return $response->withRedirect("/");
 });

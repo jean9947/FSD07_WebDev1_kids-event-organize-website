@@ -12,6 +12,7 @@
 
 
 <form method="POST" enctype = "multipart/form-data" id="form">
+<h3>Add User</h3><br />
     <label id="firstName">First Name</label><br />
     <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />
     <label id="lastName">Last Name</label><br />
@@ -32,7 +33,7 @@
         <input type="checkbox" id="role" name="role">
         <label for="parent">Parent</label>
     </fieldset><br /><br />
-    <input type="submit" id="submit" value="Register">
+    <input type="submit" id="submit" value="Save">
 </form>
 
 {% endblock content %}

@@ -42,6 +42,24 @@ $container->set('view', function() {
     return Twig::create(__DIR__ . '/templates', ['cache' => __DIR__ . '/tmplcache', 'debug' => true]);
 });
 
+
+
+// flash message
+$container['view']->getEnvironment()->addGlobal('flashMessage', getAndClearFlashMessage());
+function setFlashMessage($message) {
+    $_SESSION['flashMessage'] = $message;
+}
+// returns empty string if no message, otherwise returns string with message and clears is
+function getAndClearFlashMessage() {
+    if (isset($_SESSION['flashMessage'])) {
+        $message = $_SESSION['flashMessage'];
+        unset($_SESSION['flashMessage']);
+        return $message;
+    }
+    return "";
+}
+
+
 // Create App
 $app = AppFactory::create();
 

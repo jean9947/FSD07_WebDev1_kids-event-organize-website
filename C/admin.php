@@ -110,7 +110,9 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
     } else { // STATE 3: sucess - add new user to the DB
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
         'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
-        return $this->get('view')->render($response, 'registered.html.twig');
+        // return $this->get('view')->render($response, 'registered.html.twig');
+        setFlashMessage("Login successful");
+        return $response->withRedirect("/admin");   
     }
 });
 
