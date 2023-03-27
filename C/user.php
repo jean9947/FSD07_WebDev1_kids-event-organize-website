@@ -99,12 +99,10 @@ $app->post('/register', function ($request, $response, $args) {
                         'phoneNumber' => $phoneNumber, 
                         'email' => $email,];
         return $this->get('view')->render($response, 'register.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
-    } else { // STATE 3: sucess
-        //add new user to the DB
+    } else { // STATE 3: sucess - add new user to the DB
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
         'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
         return $this->get('view')->render($response, 'registered.html.twig');
-        // return $response->withStatus(302)->withHeader('Location', '/registered');
     }
 });
 
