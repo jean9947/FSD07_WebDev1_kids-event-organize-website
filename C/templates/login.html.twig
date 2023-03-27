@@ -1,4 +1,5 @@
 {% extends "master.html.twig" %}
+{% block title %} User Login{% endblock %}
 {% block content %}
 
 {% if errorList %}
@@ -10,18 +11,15 @@
 {% endif %}
 
 
-<form method="POST" enctype = "multipart/form-data">
-    <label id="username">Username</label><br />
-    <input  type="text" name="username" value="{{ v.username }}" required /><br /><br />
-    <label id="password">Password</label><br />
-    <input  type="password"  name="password" value="{{ v.password }}" required /><br /><br />
-    <input type="submit" value="Log In"><br /><br />
-    {# <div class="password_link">
-      <a href="{{ path('user.pass') }}">{{ 'Forgot your password?'|t }}</a>
-    </div>
-    <div class="register_link">
-      <a href="{{ path('user.register') }}">{{ 'Register a new account'|t }}</a>
-    </div> #}
+<form method="POST" enctype = "multipart/form-data" id="form">
+<h3>User Login</h3><br />
+  <label id="username">Username</label><br />
+  <input  type="text" name="username" value="{{ v.username }}" required /><br /><br />
+  <label id="password">Password</label><br />
+  <input  type="password"  name="password" value="{{ v.password }}" required /><br /><br />
+  <input type="submit" value="Log In"><br /><br />
+  <a href=""> Forget your password? </a>
+  <a class="nav-link" href="http://playroom.org/register"> Register a new account </a>
 </form>
 
 

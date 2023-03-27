@@ -21,13 +21,13 @@ $app->get('/admin', function ($request, $response, $args) {
 
 /************************************** Users ************************************************** */
 
-// View users
+/** VIEW all users */
 $app->get('/admin/users', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'admin_adduser.html.twig');
 });
 
 
-// Add user
+/** ADD users */
 // STATE 1: first display of the form
 $app->get('/admin/adduser', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'admin_adduser.html.twig');
@@ -114,7 +114,8 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
     }
 });
 
-// Delete user
+
+/** DELETE user */
 $app->get('/admin/deleteuser/{id}', function ($request, $response, $args) {
     $id = $args['id'];
     // Get the user record based on the provided id
@@ -140,7 +141,7 @@ $app->post('/admin/deleteuser/{id}', function ($request, $response, $args) {
 });
 
 
-// Update user
+/** UPDATE user */
 $app->get('/admin/updateuser/{id}', function ($request, $response, $args) {
     $id = $args['id'];
     // Get the user record based on the provided id
@@ -229,10 +230,10 @@ $app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
 
 /************************************** Bookings ************************************************** */
 
-// View bookings
+/** VIEW all bookings */
 
-// Add bookings
+/** ADD booking */
 
-// Delete bookings
+/** DELETE booking */
 
-// Update bookings
+/** UPDATE booking */

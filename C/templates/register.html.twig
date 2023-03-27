@@ -1,4 +1,5 @@
 {% extends "master.html.twig" %}
+{% block title %} Registration{% endblock %}
 {% block content %}
 
 {% if errorList %}
@@ -35,7 +36,9 @@
     });
 </script>
 
-<form method="POST" enctype = "multipart/form-data" id="registerForm">
+
+<form method="POST" enctype = "multipart/form-data" id="form">
+<h3>New User Registration</h3><br />
     <label id="firstName">First Name</label><br />
     <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />
     <label id="lastName">Last Name</label><br />

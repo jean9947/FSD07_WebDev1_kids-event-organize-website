@@ -429,9 +429,10 @@
 
 
   /********** ChihYin **********/ 
-  #registerForm {
-    margin: 50px auto;
+  #form {
+    margin: 50px 600px;
     padding: 20px 20px;
-    border: #f6e3db;
+    border-radius: 10px;
     text-align: center;
+    background-color: #c3e1db;
   }
