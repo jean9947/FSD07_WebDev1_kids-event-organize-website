@@ -5,6 +5,7 @@ users: register
 users: login
 
 admin: view bookings
+admin: add booking
 admin: update bookings
 
 admin: add users
