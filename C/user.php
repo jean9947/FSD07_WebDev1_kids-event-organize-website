@@ -123,10 +123,20 @@ $app->post('/login', function (Request $request, Response $response, $args) {
     $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
 
     if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
+        unset($userRecord['password']);
+        $_SESSION['user'] = $userRecord;
         return $this->get('view')->render($response, 'admin.html.twig');
     } elseif ($loginSuccessful) { // logged in as a customer
         return $this->get('view')->render($response, 'loggedin.html.twig');
     } else {
         $response->getBody()->write("Invalid username or password");
     }
+});
+
+
+/**Log Out */
+$app->get('/logout', function ($request, $response, $args) {
+    session_unset();
+    session_destroy();
+    return $this->get('view')->render($response, 'logout.html.twig');
 });
