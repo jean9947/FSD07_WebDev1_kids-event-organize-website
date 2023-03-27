@@ -1,78 +1,53 @@
-2023/03/26 Siyi
+2023/03/24 Siyi
 1. Done / not done since the last scrum:
-
+- created project plan
+- finished design database and use case diagram
+- created website mockup
 2. To do until the next Scrum:
-
+- setup Trello cards
+- database redesign
+- work on the event list page
 3. Need assistance / figure things out
+- discover other helpful libraries for our project (Selenium?? fullcalendar??)
+- review the video provided by Professor
 
-
-
-2023/03/26 ChihYin
-
+2023/03/24 ChihYin
 1. Done / not done since the last scrum:
+- created project plan
+- finished design database and use case diagram  
+2. To do until the next Scrum:
+- setup Trello cards
+- database redesign
+- work on the register page
+3. Need assistance / figure things out
+- how to use password_hash() to encrypt passwords
+- review the video provided by Professor
+
+
+2023/03/27 Siyi
+1. Done / not done since the last scrum:
+- setup Trello cards
+- database redesign
+- work on the event list page
+- finish the home page
+- finish the about us page
+- finish the gallery page
+2. To do until the next Scrum:
+- continue working on event page
+- create 5 pages of event datails
+3. Need assistance / figure things out
+- discover other helpful libraries for our project (Selenium?? fullcalendar??)
+- review the video provided by Professor
+
+2023/03/27 ChihYin
+1. Done / not done since the last scrum:
+- set up database and all tables
+- register form finished
 - login form completed
 - login as an Admin or a customer
 - finish all the validation in register form
 2. To do until the next Scrum:
 - add Ajax in register form
 3. Need assistance / figure things out
-
-
-
-/***********************************************************/
-
-2023/03/25 Siyi
-1. Done / not done since the last scrum:
-
-2. To do until the next Scrum:
-
-3. Need assistance / figure things out
-
-
-
-2023/03/25 ChihYin
-
-1. Done / not done since the last scrum:
-- set up database and all tables
-- register form finished
-
-2. To do until the next Scrum:
-- add Ajax to confirm if username is taken when user registers
-- login form
-
-3. Need assistance / figure things out
 - Ajax using in forms
-
-
-/***********************************************************/
-
-2023/03/24 Siyi
-1. Done / not done since the last scrum:
-- created project plan
-- finished design database and use case diagram
-- created website mockup
-
-2. To do until the next Scrum:
-- setup Trello cards
-- database redesign
-- work on the event list page
-
-3. Need assistance / figure things out
-- discover other helpful libraries for our project (Selenium?? fullcalendar??)
-- review the video provided by Professor
-
-
-2023/03/24 ChihYin
-
-1. Done / not done since the last scrum:
-- created project plan
-- finished design database and use case diagram
-  
-2. To do until the next Scrum:
-- setup Trello cards
-- database redesign
-- work on the register page
-
-3. Need assistance / figure things out
-- how to use password_hash() to encrypt passwords
 - review the video provided by Professor
