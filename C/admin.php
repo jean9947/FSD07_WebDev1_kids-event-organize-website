@@ -111,7 +111,7 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
         'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
         // return $this->get('view')->render($response, 'registered.html.twig');
-        setFlashMessage("Login successful");
+        setFlashMessage("user added, redirecting to the admin page...");
         return $response->withRedirect("/admin");   
     }
 });
@@ -139,7 +139,9 @@ $app->post('/admin/deleteuser/{id}', function ($request, $response, $args) {
     // Delete the user from the database
     DB::delete('users', 'userId=%d', $id);
     // Display a success message
-    return $this->get('view')->render($response, 'admin_deleteduser.html.twig');
+    // return $this->get('view')->render($response, 'admin_deleteduser.html.twig');
+    setFlashMessage("user deleted, redirecting to the admin page...");
+    return $response->withRedirect("/admin"); 
 });
 
 
@@ -224,7 +226,9 @@ $app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
     DB::update('users', ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
     'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email]);
     // Display a success message
-    return $this->get('view')->render($response, 'admin_updateduser.html.twig');
+    // return $this->get('view')->render($response, 'admin_updateduser.html.twig');
+    setFlashMessage("user updated, redirecting to the admin page...");
+    return $response->withRedirect("/admin");   
     }
 });
 
