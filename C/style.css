@@ -426,3 +426,12 @@
     padding-top: 3%;
   }
   
+
+
+  /********** ChihYin **********/ 
+  #registerForm {
+    margin: 50px auto;
+    padding: 20px 20px;
+    border: #f6e3db;
+    text-align: center;
+  }

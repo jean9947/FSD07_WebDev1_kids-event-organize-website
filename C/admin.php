@@ -18,7 +18,13 @@ $app->get('/admin', function ($request, $response, $args) {
 });
 
 
-// Vuew users
+
+/************************************** Users ************************************************** */
+
+// View users
+$app->get('/admin/users', function ($request, $response, $args) {
+    return $this->get('view')->render($response, 'admin_adduser.html.twig');
+});
 
 
 // Add user
@@ -27,18 +33,18 @@ $app->get('/admin/adduser', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'admin_adduser.html.twig');
 });
 
-// *Check if username is taken using AJAX*
-$app->post('/checkUsername', function (Request $request, Response $response) {
-    $username = $request->getParam('username');
-    $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
+// // *Check if username is taken using AJAX*
+// $app->post('/checkUsername', function (Request $request, Response $response) {
+//     $username = $request->getParam('username');
+//     $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
 
-    if ($result) {
-        $response->getBody()->write(json_encode(array('taken' => true)));
-    } else {
-        $response->getBody()->write(json_encode(array('taken' => false)));
-    }
-    return $response->withHeader('Content-Type', 'application/json');
-});
+//     if ($result) {
+//         $response->getBody()->write(json_encode(array('taken' => true)));
+//     } else {
+//         $response->getBody()->write(json_encode(array('taken' => false)));
+//     }
+//     return $response->withHeader('Content-Type', 'application/json');
+// });
 
 // SATE 2&3: receiving a submission
 $app->post('/admin/adduser', function ($request, $response, $args) {
@@ -111,3 +117,16 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
 // Delete user
 
 // Update user
+
+
+
+
+/************************************** Bookings ************************************************** */
+
+// View bookings
+
+// Add bookings
+
+// Delete bookings
+
+// Update bookings

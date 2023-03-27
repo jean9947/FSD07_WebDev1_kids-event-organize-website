@@ -130,6 +130,13 @@ $app->post('/login', function (Request $request, Response $response, $args) {
     }
 });
 
+/**Log Out */
+$app->get('/logout', function ($request, $response, $args) {
+    session_unset();
+    session_destroy();
+    return $this->get('view')->render($response, 'logout.html.twig');
+});
+
 
 /******************************************************************************************************** */
 
