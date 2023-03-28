@@ -7,6 +7,8 @@ use DI\Container;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Middleware\FlashMiddleware;
+use Slim\Flash\Messages;
 
 
 require_once 'init.php';
@@ -128,6 +130,8 @@ $app->post('/login', function (Request $request, Response $response, $args) {
         $_SESSION['user'] = $userRecord;
         return $this->get('view')->render($response, 'admin.html.twig');
     } elseif ($loginSuccessful) { // logged in as a customer
+        unset($userRecord['password']);
+        $_SESSION['user'] = $userRecord;
         return $this->get('view')->render($response, 'loggedin.html.twig'); // TODO: change it to homepage and shown as logged in
     } else {
         $response->getBody()->write("Invalid username or password");
@@ -140,7 +144,9 @@ $app->post('/login', function (Request $request, Response $response, $args) {
 $app->get('/logout', function ($request, $response, $args) {
     unset($_SESSION['user']);
     session_destroy();
-    return $this->get('view')->render($response, 'logout.html.twig');
+    setFlashMessage("You've been logged out.");
+    return $response
+        ->withHeader('Location', '/')
+        ->withStatus(302);
+    // return $this->get('view')->render($response, 'logout.html.twig');
 })->setName('logout');
-
-// return $response->withHeader('Location', '/login')->withStatus(302);

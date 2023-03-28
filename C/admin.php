@@ -7,6 +7,8 @@ use DI\Container;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Middleware\FlashMiddleware;
+use Slim\Flash\Messages;
 
 
 require_once 'init.php';
@@ -14,26 +16,35 @@ require_once 'init.php';
 
 // Admin dashboard
 $app->get('/admin', function($request, $response, $args) {
-    // Check if user is authenticated
     $username = $_SESSION['user']['username'];
     $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    // Check if user is authenticated
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        setFlashMessage("Admin must log in to edit.");
+        return $response
+            ->withHeader('Location', '/login')
+            ->withStatus(302);
+    }
     return $this->get('view')->render($response, 'admin.html.twig', ['username' => $username, 'isAdmin' => $isAdmin]);
 });
-
 
 /************************************** Users - CRUD ************************************************** */
 
 /** VIEW all users */
 $app->get('/admin/users', function($request, $response) {
-    // Check if user is authenticated
-    if (!isset($_SESSION['user'])) {
-        return $response->withStatus(403)->write("Please log in to edit.");
-    }
     $username = $_SESSION['user']['username'];
     $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    // Check if user is authenticated
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        setFlashMessage("Admin must log in to edit.");
+        return $response
+            ->withHeader('Location', '/login')
+            ->withStatus(302);
+    }
     $users = DB::query("SELECT userId, username, firstName, lastName, phoneNumber, email FROM users");
     return $this->get('view')->render($response, 'admin_users.html.twig', ['username' => $username, 'isAdmin' => $isAdmin, 'users' => $users]);
 });
+
 
 /*************************************************************** */
 
@@ -42,7 +53,10 @@ $app->get('/admin/users', function($request, $response) {
 $app->get('/admin/adduser', function ($request, $response, $args) {
     // Check if user is authenticated
     if (!isset($_SESSION['user'])) {
-        return $response->withStatus(403)->write("Please log in to edit.");
+        setFlashMessage("Please log in to edit.");
+        return $response
+            ->withHeader('Location', '/login')
+            ->withStatus(302);
     }
     $username = $_SESSION['user']['username'];
     $isAdmin = ($_SESSION['user']['role'] === 'admin');
@@ -128,7 +142,10 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
 $app->post('/admin/users', function ($request, $response, $args) {
     // Check if user is authenticated
     if (!isset($_SESSION['user'])) {
-        return $response->withStatus(403)->write("Please log in to edit.");
+        setFlashMessage("Please log in to edit.");
+        return $response
+            ->withHeader('Location', '/login')
+            ->withStatus(302);
     }
     $userId = $request->getParam('userId');
     DB::delete('users', 'userId=%d', $userId);
@@ -141,7 +158,10 @@ $app->post('/admin/users', function ($request, $response, $args) {
 $app->get('/admin/updateuser/{userId}', function ($request, $response, $args) {
     // Check if user is authenticated
     if (!isset($_SESSION['user'])) {
-        return $response->withStatus(403)->write("Please log in to edit.");
+        setFlashMessage("Please log in to edit.");
+        return $response
+            ->withHeader('Location', '/login')
+            ->withStatus(302);
     }
     $username = $_SESSION['user']['username'];
     $isAdmin = ($_SESSION['user']['role'] === 'admin');

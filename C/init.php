@@ -8,6 +8,8 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Slim\Exception\HttpNotFoundException;
 use \Slim\Routing\RouteContext;
+use Slim\Middleware\FlashMiddleware;
+use Slim\Flash\Messages;
 
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -77,6 +79,7 @@ $app->add(function ($request, $handler) use ($container) {
 function setFlashMessage($message) {
     $_SESSION['flashMessage'] = $message;
 }
+
 // function to get and clear a flash message
 function getAndClearFlashMessage() {
     if (isset($_SESSION['flashMessage'])) {
