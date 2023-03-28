@@ -24,11 +24,15 @@ $app->get('/admin', function ($request, $response, $args) {
 /************************************** Users - CRUD ************************************************** */
 
 /** VIEW all users */
-$app->get('/admin/users', function() use ($app) {
+$app->get('/admin/users', function($request, $response) {
+    // Check if user is authenticated
+    if (!isset($_SESSION['user'])) {
+        return $response->withStatus(403)->write("Please log in to edit.");
+    }
+    
     $users = DB::query("SELECT userId, username FROM users");
-    $app->render('admin_users.html.twig', ['users' => $users]);
+    return $this->view->render($response, 'admin_users.html.twig', ['user' => $users]);
 });
-
 
 /** ADD users */
 // STATE 1: first display of the form
@@ -44,6 +48,7 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
     $username = $data['username'];
     $password = $data['password'];
     $phoneNumber = $data['phoneNumber'];
+    $role = $data['role'];
     $email = $data['email'];
     
     $errorList = [];
@@ -90,19 +95,15 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
 
 
     if ($errorList) { // STATE 2: errors
-        $valuesList = ['firstName' => $firstName, 
-                        'lastName' => $lastName, 
-                        'username' => $username, 
-                        'password' => $password, 
-                        'phoneNumber' => $phoneNumber, 
-                        'email' => $email,];
+        $valuesList = ['firstName' => $firstName, 'lastName' => $lastName, 'username' => $username, 'password' => $password, 
+                        'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => $role];
         return $this->get('view')->render($response, 'admin_adduser.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - add new user to the DB
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-        'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
-        // return $this->get('view')->render($response, 'registered.html.twig');
-        setFlashMessage("user added, redirecting to the admin page...");
-        return $response->withRedirect("/admin");   
+        'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => $role]);
+        return $this->get('view')->render($response, 'registered.html.twig');
+        // setFlashMessage("user added, redirecting to the admin page...");
+        // return $response->withRedirect("/admin");   
     }
 });
 

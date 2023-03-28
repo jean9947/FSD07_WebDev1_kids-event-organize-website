@@ -31,8 +31,8 @@ $log->pushProcessor(function ($record) {
 
 // DATABASE SETUP
 DB::$dbName = 'WebDev1_Playroom';
-DB::$user = 'WebDev1_Playroom';
-DB::$password = 's@K/p0/f8BQ9VZFm';
+DB::$user = 'playroom';
+DB::$password = 'iuWS.OfU@To.fJWS';
 DB::$host = 'localhost';
 
 

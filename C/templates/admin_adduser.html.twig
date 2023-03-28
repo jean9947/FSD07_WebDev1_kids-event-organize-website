@@ -26,13 +26,8 @@
     <input  type="tel" placeholder="000-000-0000" name="phoneNumber" value="{{ v.phoneNumber }}" required /><br /><br />
     <label id="uname">Email</label><br />
     <input type="email" name="email" value="{{ v.email }}" required /><br /><br />
-    <fieldset>
-        <legend>Role</legend>
-        <input type="checkbox" id="role" name="role">
-        <label for="admin">Admin</label>
-        <input type="checkbox" id="role" name="role">
-        <label for="parent">Parent</label>
-    </fieldset><br /><br />
+    <label id="role">Role</label><br />
+    <input  type="text" name="role" placeholder="admin or parent" value="{{ v.role }}" required /><br /><br />
     <input type="submit" id="submit" value="Save">
 </form>
 
