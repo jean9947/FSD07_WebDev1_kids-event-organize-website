@@ -51,3 +51,24 @@
 3. Need assistance / figure things out
 - Ajax using in forms
 - review the video provided by Professor
+
+2023/03/28 Siyi
+1. Done / not done since the last scrum:
+- continue working on event page
+- create 5 pages of event datails
+2. To do until the next Scrum:
+- create Bookings database
+- customer add booking
+- try to use AJAX to display the form on the same page
+3. Need assistance / figure things out
+- review the video provided by Professor
+
+2023/03/28 ChihYin
+1. Done / not done since the last scrum:
+- admin CRUD functionalities
+- register and login CSS added
+2. To do until the next Scrum:
+- complete admin CSS
+- test admin CRUD
+3. Need assistance / figure things out
+- review the video provided by Professor

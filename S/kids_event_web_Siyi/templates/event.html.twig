@@ -1,97 +1,27 @@
 {% extends "master.html.twig" %}
 {% block title %}Event{% endblock %}
 {% block content %}
-  <section class="eventlist">
-    <div class="container" style="text-align: center">
-      <h3 id="h3" class="animate__animated animate__bounce" style="font-size:50px;">Event List</h3>
+<section class="eventlist">
+  <div class="container" style="text-align: center;padding-bottom:2%">
+    <h3 id="h3" class="animate__animated animate__bounce" style="font-size:50px;">Event List</h3>
+  </div>
+</section>
+<section class="sectionTwo">
+  <div class="container text-center">
+    <div class="row row-cols-4">
+      {% for event in events %}
+        <div class="col" style="margin-bottom:3%">
+          <div class="insideCol">
+            <a href="/event/{{ event.eventId  }}"
+              ><img src="{{ event.smallPhotoPath }}" alt=""
+            /></a>
+            <h5 id="h5">{{ event.date }}</h5>
+            <h4 id="h4">{{ event.eventName }}</h4>
+            <p>{{ event.startTime }} - {{ event.endTime }}</p>
+          </div>
+        </div>
+      {% endfor %}
     </div>
-  </section>
-  <section class="sectionTwo">
-    <div class="container text-center">
-      <div class="row">
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event1.html"
-              ><img src="./images/h1-eventlist-img-1-1-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">19 Dec</h5>
-            <h4 id="h4">Arts & Crafts</h4>
-            <p>12:30 PM - 1:30 PM</p>
-          </div>
-        </div>
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event2.html"
-              ><img src="./images/h1-eventlist-img-2-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">17 Nov</h5>
-            <h4 id="h4">Trampolines</h4>
-            <p>8:00 AM - 5:00 PM</p>
-          </div>
-        </div>
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event3.html"
-              ><img src="./images/h1-eventlist-img-3-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">30 Oct</h5>
-            <h4 id="h4">Halloween Party</h4>
-            <p>12:00 AM - 11:59 PM</p>
-          </div>
-        </div>
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event4.html"
-              ><img src="./images/h1-eventlist-img-4-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">18 Sep</h5>
-            <h4 id="h4">Slides</h4>
-            <p>3:00 PM - 6:00 PM</p>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event5.html"
-              ><img src="./images/h1-eventlist-img-5-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">22 Aug</h5>
-            <h4 id="h4">Science</h4>
-            <p>8:00 AM - 5:00 PM</p>
-          </div>
-        </div>
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event6.html"
-              ><img src="./images/h1-eventlist-img-6-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">25 Jul</h5>
-            <h4 id="h4">Rock Climbing</h4>
-            <p>8:00 AM - 5:00 PM</p>
-          </div>
-        </div>
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event7.html"
-              ><img src="./images/h1-eventlist-img-7-1-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">12 Jun</h5>
-            <h4 id="h4">Toddler Drawing</h4>
-            <p>1:30 PM - 4:30 PM</p>
-          </div>
-        </div>
-        <div class="col-sm">
-          <div class="insideCol">
-            <a href="http://127.0.0.1:5500/FinalProject/Event8.html"
-              ><img src="./images/h1-eventlist-img-8-800x593.jpg" alt=""
-            /></a>
-            <h5 id="h5">23 May</h5>
-            <h4 id="h4">Soft Play</h4>
-            <p>4:00 PM - 8:00 PM</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  </div>
+</section>
 {% endblock content %}
