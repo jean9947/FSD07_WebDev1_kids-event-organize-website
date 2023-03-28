@@ -138,7 +138,9 @@ $app->post('/login', function (Request $request, Response $response, $args) {
 
 /**Log Out */
 $app->get('/logout', function ($request, $response, $args) {
-    session_unset($_SESSION['user']);
+    unset($_SESSION['user']);
     session_destroy();
     return $this->get('view')->render($response, 'logout.html.twig');
 })->setName('logout');
+
+// return $response->withHeader('Location', '/login')->withStatus(302);

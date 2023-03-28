@@ -1,8 +1,9 @@
 {% extends "admin.html.twig" %}
-{% block title %} - Add User{% endblock %}
+{% block title %} - Update User{% endblock %}
 
 
 {% block content %}
+<div id="admin_showall">
 
 {% if errorList %}
     <ul>
@@ -12,10 +13,8 @@
     </ul>
 {% endif %}
 
-
-
 <form method="POST" enctype = "multipart/form-data" id="form">
-<h3>Add User</h3><br />
+<h3>Update User</h3><br />
     <label id="firstName">First Name</label><br />
     <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />
     <label id="lastName">Last Name</label><br />
@@ -34,4 +33,5 @@
     <input type="submit" id="submit" value="Save">
 </form>
 
+</div>
 {% endblock content %}

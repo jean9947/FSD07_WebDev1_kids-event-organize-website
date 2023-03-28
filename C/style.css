@@ -439,4 +439,13 @@
 
   #admin_showall {
     text-align: center;
+    margin-top: 30px;
+  }
+
+  #userList {
+    text-align: left;
+  }
+
+  #loginas{
+
   }

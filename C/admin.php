@@ -12,13 +12,13 @@ use Slim\Exception\HttpNotFoundException;
 require_once 'init.php';
 
 
-
-
 // Admin dashboard
-$app->get('/admin', function ($request, $response, $args) {
-    return $this->get('view')->render($response, 'admin.html.twig');
+$app->get('/admin', function($request, $response, $args) {
+    // Check if user is authenticated
+    $username = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    return $this->get('view')->render($response, 'admin.html.twig', ['username' => $username, 'isAdmin' => $isAdmin]);
 });
-
 
 
 /************************************** Users - CRUD ************************************************** */
@@ -29,15 +29,25 @@ $app->get('/admin/users', function($request, $response) {
     if (!isset($_SESSION['user'])) {
         return $response->withStatus(403)->write("Please log in to edit.");
     }
-    
-    $users = DB::query("SELECT userId, username FROM users");
-    return $this->view->render($response, 'admin_users.html.twig', ['user' => $users]);
+    $username = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    $users = DB::query("SELECT userId, username, firstName, lastName, phoneNumber, email FROM users");
+    return $this->get('view')->render($response, 'admin_users.html.twig', ['username' => $username, 'isAdmin' => $isAdmin, 'users' => $users]);
 });
+
+/*************************************************************** */
 
 /** ADD users */
 // STATE 1: first display of the form
 $app->get('/admin/adduser', function ($request, $response, $args) {
-    return $this->get('view')->render($response, 'admin_adduser.html.twig');
+    // Check if user is authenticated
+    if (!isset($_SESSION['user'])) {
+        return $response->withStatus(403)->write("Please log in to edit.");
+    }
+    $username = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    return $this->get('view')->render($response, 'admin_adduser.html.twig', ['username' => $username, 'isAdmin' => $isAdmin]);
+    // return $this->get('view')->render($response, 'admin_adduser.html.twig');
 });
 
 // SATE 2&3: receiving a submission
@@ -107,50 +117,48 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
     }
 });
 
+/*************************************************************** */
 
 /** DELETE user */
-$app->get('/admin/deleteuser/{id}', function ($request, $response, $args) {
-    $id = $args['id'];
-    // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
-    if (!$userRecord) {
-        $response->getBody()->write("Error: User not found");
+// $app->post('/admin/users', function ($request, $response, $args) {
+//     $userId = $request->getParam('userId');
+//     DB::delete('users', 'userId=%d', $userId);
+//     return $response->withHeader('Location', '/admin/users')->withStatus(302);
+// });
+$app->post('/admin/users', function ($request, $response, $args) {
+    // Check if user is authenticated
+    if (!isset($_SESSION['user'])) {
+        return $response->withStatus(403)->write("Please log in to edit.");
     }
-    // Display the delete confirmation form
-    return $this->get('view')->render($response, 'admin_deleteuser.html.twig', ['userRecord' => $userRecord]);
+    $userId = $request->getParam('userId');
+    DB::delete('users', 'userId=%d', $userId);
+    return $response->withJson(['status' => 'success']);
 });
 
-$app->post('/admin/deleteuser/{id}', function ($request, $response, $args) {
-    $id = $args['id'];
-    // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
-    if (!$userRecord) {
-        $response->getBody()->write("Error: user not found");
-    }
-    // Delete the user from the database
-    DB::delete('users', 'userId=%d', $id);
-    // Display a success message
-    // return $this->get('view')->render($response, 'admin_deleteduser.html.twig');
-    setFlashMessage("user deleted, redirecting to the admin page...");
-    return $response->withRedirect("/admin"); 
-});
-
+/*************************************************************** */
 
 /** UPDATE user */
-$app->get('/admin/updateuser/{id}', function ($request, $response, $args) {
-    $id = $args['id'];
+$app->get('/admin/updateuser/{userId}', function ($request, $response, $args) {
+    // Check if user is authenticated
+    if (!isset($_SESSION['user'])) {
+        return $response->withStatus(403)->write("Please log in to edit.");
+    }
+    $username = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+
+    $userId = $args['userId'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $userId);
     if (!$userRecord) {
         $response->getBody()->write("Error: user not found");
     }
-    return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['userRecord' => $userRecord]);
+    return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['username' => $username, 'isAdmin' => $isAdmin, 'userRecord' => $userRecord]);
 });
 
-$app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
-    $id = $args['id'];
+$app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
+    $userId = $args['userId'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $userId);
     if (!$userRecord) {
         $response->getBody()->write("Error: user not found");
     }
@@ -218,8 +226,8 @@ $app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
     'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email]);
     // Display a success message
     // return $this->get('view')->render($response, 'admin_updateduser.html.twig');
-    setFlashMessage("user updated, redirecting to the admin page...");
-    return $response->withRedirect("/admin");   
+    setFlashMessage("user updated, redirecting...");
+    return $response->withRedirect("/admin/users");   
     }
 });
 
