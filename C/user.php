@@ -12,6 +12,7 @@ use Slim\Exception\HttpNotFoundException;
 require_once 'init.php';
 
 
+
 /** Homepage */
 // Get home page
 $app->get('/', function ($request, $response, $args) {
@@ -101,7 +102,7 @@ $app->post('/register', function ($request, $response, $args) {
         return $this->get('view')->render($response, 'register.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - add new user to the DB
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-        'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "admin"]);
+        'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
         return $this->get('view')->render($response, 'registered.html.twig');
     }
 });
@@ -127,9 +128,7 @@ $app->post('/login', function (Request $request, Response $response, $args) {
         $_SESSION['user'] = $userRecord;
         return $this->get('view')->render($response, 'admin.html.twig');
     } elseif ($loginSuccessful) { // logged in as a customer
-        // return $this->get('view')->render($response, 'loggedin.html.twig');
-        setFlashMessage("Login successful");
-        return $response->withRedirect("/");   
+        return $this->get('view')->render($response, 'loggedin.html.twig'); // TODO: change it to homepage and shown as logged in
     } else {
         $response->getBody()->write("Invalid username or password");
         return $reponse;
@@ -141,7 +140,5 @@ $app->post('/login', function (Request $request, Response $response, $args) {
 $app->get('/logout', function ($request, $response, $args) {
     session_unset($_SESSION['user']);
     session_destroy();
-    // return $this->get('view')->render($response, 'logout.html.twig');
-    setFlashMessage("You've been logged out");
-    return $response->withRedirect("/");
-});
+    return $this->get('view')->render($response, 'logout.html.twig');
+})->setName('logout');

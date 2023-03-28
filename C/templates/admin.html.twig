@@ -14,10 +14,24 @@
       {% include 'header_admin.html.twig' %}
     </header>
     <main>
-      <div class="all">
-        {% block content %}
-        <p class="text">You are loggind in as Admin</p>
-        {% endblock %}
+      <div id="admin_showall">
+      {% block content %}
+
+      <p class="text">You are logged in as Admin</p>
+      <button id="btnLogout" class="btnLogout"> Log out </button>
+
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script>
+        $(document).ready(function() {
+          $("#btnLogout").click(function() {
+            $.get('/logout',function(){
+                    window.location = "/";
+                });
+          });
+        });
+      </script>
+
+      {% endblock %}
       </div>
     </main>
   </body>

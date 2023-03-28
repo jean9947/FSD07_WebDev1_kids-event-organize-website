@@ -7,6 +7,8 @@ use DI\Container;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Slim\Exception\HttpNotFoundException;
+use \Slim\Routing\RouteContext;
+
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -42,7 +44,6 @@ AppFactory::setContainer($container);
 $container->set('view', function() {
     return Twig::create(__DIR__ . '/templates', ['cache' => __DIR__ . '/tmplcache', 'debug' => true]);
 });
-
 
 // Create App
 $app = AppFactory::create();

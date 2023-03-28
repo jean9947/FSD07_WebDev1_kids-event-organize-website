@@ -24,8 +24,9 @@ $app->get('/admin', function ($request, $response, $args) {
 /************************************** Users - CRUD ************************************************** */
 
 /** VIEW all users */
-$app->get('/admin/users', function ($request, $response, $args) {
-    return $this->get('view')->render($response, 'admin_adduser.html.twig');
+$app->get('/admin/users', function() use ($app) {
+    $users = DB::query("SELECT userId, username FROM users");
+    $app->render('admin_users.html.twig', ['users' => $users]);
 });
 
 
@@ -110,7 +111,7 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
 $app->get('/admin/deleteuser/{id}', function ($request, $response, $args) {
     $id = $args['id'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
     if (!$userRecord) {
         $response->getBody()->write("Error: User not found");
     }
@@ -121,7 +122,7 @@ $app->get('/admin/deleteuser/{id}', function ($request, $response, $args) {
 $app->post('/admin/deleteuser/{id}', function ($request, $response, $args) {
     $id = $args['id'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
     if (!$userRecord) {
         $response->getBody()->write("Error: user not found");
     }
@@ -138,7 +139,7 @@ $app->post('/admin/deleteuser/{id}', function ($request, $response, $args) {
 $app->get('/admin/updateuser/{id}', function ($request, $response, $args) {
     $id = $args['id'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
     if (!$userRecord) {
         $response->getBody()->write("Error: user not found");
     }
@@ -148,7 +149,7 @@ $app->get('/admin/updateuser/{id}', function ($request, $response, $args) {
 $app->post('/admin/updateuser/{id}', function ($request, $response, $args) {
     $id = $args['id'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $id);
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $id);
     if (!$userRecord) {
         $response->getBody()->write("Error: user not found");
     }

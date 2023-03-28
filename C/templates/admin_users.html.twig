@@ -1,0 +1,71 @@
+{% extends "admin.html.twig" %}
+{% block title %} - Users{% endblock %}
+{% block content %}
+
+<div id="admin_showall">
+
+<h2>Manage Users</h2>
+<br>
+<button id="btnAddUser" class="btnAddUser"><a class="nav-link" href="http://playroom.org/admin/adduser"> Add User </a></button>
+<br>
+
+<ul id="userList">
+ {% for user in users %}
+    <li class="list-group-item">
+        <span>{{ user.userId }}</span>
+        <span>{{ user.username }}</span>
+        <span class="float-right">
+            <a href="/admin/users/{{ user.id }}"><i class="fa fa-eye fa-fw"></i></a>&nbsp;&nbsp;
+            <a href="/admin/updateuser/{{ user.id }}"><i class="fa fa-edit fa-fw"></i></a>&nbsp;&nbsp;
+            <a href="javascript:void(0);" data-id="{{ user.id }}" class="delete-task"><i class="fa fa-trash fa-fw"></i></a>
+        </span>
+    </li>
+</ul>
+
+{% endfor %}
+
+</div>
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+{# 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $("#btnAddUser").on("click", function(event) {
+            // prevent default form submission behavior
+            event.preventDefault(); 
+            $.ajax({
+                type: "POST",
+                url: "/admin/adduser",
+                success: function() {
+                    window.location.href = "/admin/adduser"; 
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                     // log any errors to the console
+                    console.error(errorThrown);
+                }
+            });
+        });
+        $(".delete-task").on("click",function(){
+            var taskId = $(this).data("id");
+            check = confirm("Delete task?");
+            if(check){
+                $.post('/admin/deleteuser',{taskId:taskId},function(){
+                    window.location = "/";
+                });
+            }
+           return false;
+        });
+    });
+</script>
+ #}
