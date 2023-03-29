@@ -1,0 +1,114 @@
+{% extends "admin.html.twig" %}
+{% block title %} - Events{% endblock %}
+
+{% block content %}
+
+<p id="usersmanage">Manage Events<p>
+
+<div id="admin_showall">
+    <table class="table user-list">
+        <thead>
+            <tr>
+                <th><span>eventID</span></th>
+                <th><span>Name</span></th>
+                <th><span>Date</span></th>
+                <th><span>Sarttime</span></th>
+                <th><span>Endtime</span></th>
+                <th><span>Price</span></th>
+                <th><span>Organizer</span></th>
+                <th><span>Venue</span></th>
+                <th><span>Capacity</span></th>
+                <th><span>Attendees</span></th>
+            </tr>
+        </thead>
+{% for event in events %}
+        <tbody>
+            <tr>
+                <td>
+                    <span>{{ events.eventId }}</span>
+                </td>
+                <td>
+                    <span>{{ events.eventName }}</span>
+                </td>
+                <td>
+                    <span>{{ events.date }}</span>
+                </td>
+                <td>
+                    <span>{{ events.starttime }}</span>
+                </td>
+                <td>
+                    <span>{{ events.endtime }}</span>
+                </td>
+                <td>
+                    <span>{{ events.price }}</span>
+                </td>
+                <td>
+                    <span>{{ events.organizer }}</span>
+                </td>
+                <td>
+                    <span>{{ events.venue }}</span>
+                </td>
+                <td>
+                    <span>{{ events.capacity }}</span>
+                </td>
+                <td>
+                    <span>{{ events.attendeesCount }}</span>
+                </td>
+                <td>
+                    <span id="info">
+                    <a href="/updateevent/{{ events.eventId }}" class="updateEvent"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    <a href="#" class="deleteUser" data-user-id="{{ events.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+{% endfor %}
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $(".updateEvent").on("click", function(event) {
+            // prevent default form submission behavior
+            event.preventDefault(); 
+            var userId = $(this).attr("href").split('/')[2]; // extract eventId from href attribute
+            $.ajax({
+                type: "POST",
+                url: "/admin/updateevent/" + userId,
+                success: function() {
+                    window.location.href = "/admin/updateevent/" + eventId; 
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // log any errors to the console
+                    console.error(errorThrown);
+                }
+            });
+        });
+        {#$(".deleteUser").on("click",function(){
+            var userId = $(this).data("user-id");
+            check = confirm("Delete this user?");
+            if(check){
+                $.ajax({
+                    type: "POST",
+                    url: window.location.href,
+                    data: {userId: userId},
+                    success: function(response) {
+                        console.log(response);
+                        window.location.reload();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        // log any errors to the console
+                        console.error(errorThrown);
+                    }
+                });
+            }
+            return false;
+        });#}
+    });
+</script>
+
+
+{% endblock content %}
+
+

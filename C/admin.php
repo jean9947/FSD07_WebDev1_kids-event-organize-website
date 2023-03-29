@@ -125,7 +125,7 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
     } else { // STATE 3: sucess - add new user to the DB
         DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
         'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => $role]);
-        return $this->get('view')->render($response, 'registered.html.twig');
+        return $this->get('view')->render($response, 'admin_users.html.twig');
         // setFlashMessage("user added, redirecting to the admin page...");
         // return $response->withRedirect("/admin");   
     }
@@ -245,7 +245,7 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
     DB::update('users', ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
     'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email]);
     // Display a success message
-    // return $this->get('view')->render($response, 'admin_updateduser.html.twig');
+    // return $this->get('view')->render($response, 'admin_users.html.twig');
     setFlashMessage("user updated, redirecting...");
     return $response->withRedirect("/admin/users");   
     }
@@ -267,3 +267,21 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
 
 
 /************************************** Events ************************************************** */
+
+/** VIEW all events */
+$app->get('/admin/events', function($request, $response) {
+    $username = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    // Check if user is authenticated
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        setFlashMessage("Admin must log in to edit.");
+        return $response
+            ->withHeader('Location', '/login')
+            ->withStatus(302);
+    }
+    $events = DB::query("SELECT eventId, eventName, date, starttime, endtime, price, organizer, venue, capacity, attendeesCount FROM events");
+    return $this->get('view')->render($response, 'admin_events.html.twig', ['username' => $username, 'isAdmin' => $isAdmin, 'events' => $events]);
+});
+
+
+/*************************************************************** */
