@@ -12,7 +12,7 @@
     </ul>
 {% endif %}
 
-<form method="POST" enctype = "multipart/form-data" id="form">
+<form method="POST" action="/admin/updateuser" id="form">
 <h3>Update User</h3><br />
     <label id="firstName">First Name</label><br />
     <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />

@@ -1,55 +1,45 @@
 {% extends "admin.html.twig" %}
-{% block title %} - Users{% endblock %}
+{% block title %} - Bookings{% endblock %}
 
 {% block content %}
 
-<p id="usersmanage">Manage Users<p>
+<p id="usersmanage">Manage Bookings<p>
 
 <div id="admin_showall">
     <table class="table user-list">
         <thead>
             <tr>
-                <th><span>userID</span></th>
-                <th><span>role</span></th>
-                <th><span>username</span></th>
-                <th><span>Password</span></th>
-                <th><span>First name</span></th>
-                <th><span>Last name</span></th>
-                <th><span>Phone</span></th>
-                <th><span>Email</span></th>
+                <th><span>Booking ID</span></th>
+                <th><span>Event ID</span></th>
+                <th><span>User ID</span></th>
+                <th><span>Child ID</span></th>
+                <th><span>Booked Time</span></th>
+
+
             </tr>
         </thead>
-{% for user in users %}
+{% for booking in bookings %}
         <tbody>
             <tr>
                 <td>
-                    <span>{{ user.userId }}</span>
+                    <span>{{ booking.bookingId }}</span>
                 </td>
                 <td>
-                    <span>{{ user.role }}</span>
+                    <span>{{ booking.eventId }}</span>
                 </td>
                 <td>
-                    <span>{{ user.username }}</span>
+                    <span>{{ booking.userId }}</span>
                 </td>
                 <td>
-                    <span>{{ user.password }}</span>
+                    <span>{{ booking.childId }}</span>
                 </td>
                 <td>
-                    <span>{{ user.firstName }}</span>
-                </td>
-                <td>
-                    <span>{{ user.lastName }}</span>
-                </td>
-                <td>
-                    <span>{{ user.phoneNumber }}</span>
-                </td>
-                <td>
-                    <span>{{ user.email }}</span>
+                    <span>{{ booking.bookingTimeStamp }}</span>
                 </td>
                 <td>
                     <span id="info">
-                    <a href="/updateuser/{{ user.userId }}" class="updateUser"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                    <a href="#" class="deleteUser" data-id="{{ user.userId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    <a href="/updatebooking/{{ booking.bookingId }}" class="updateBooking"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    <a href="#" class="deleteBooking" data-id="{{ booking.bookingId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
                     </span>
                 </td>
             </tr>
@@ -59,7 +49,7 @@
     </table>
     <br>
     <section class="container text-center">
-        <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%">ADD USER</button>
+        <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%">ADD</button>
     </section>
 
     <div id="addUser-form-container">
@@ -73,21 +63,21 @@
         $("#btnAddUser").click(function() {
             $(this).hide();
             $.ajax({
-            url: "/admin/adduser",
+            url: "/admin/addbooking",
             success: function(data) {
                 $("#addUser-form-container").html(data);
             }
             });
         }); 
-        $(".updateUser").on("click", function(event) {
+        $(".updateBooking").on("click", function(event) {
             // prevent default form submission behavior
             event.preventDefault(); 
-            var userId = $(this).attr("href").split('/')[2]; // extract userId from href attribute
+            var bookingId = $(this).attr("href").split('/')[2]; // extract bookingId from href attribute
             $.ajax({
                 type: "POST",
-                url: "/admin/updateuser/" + userId,
+                url: "/admin/updatebooking/" + bookingId,
                 success: function() {
-                    window.location.href = "/admin/updateuser/" + userId; 
+                    window.location.href = "/admin/updatebooking/" + bookingId; 
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     // log any errors to the console
@@ -95,14 +85,14 @@
                 }
             });
         });
-        $(".deleteUser").on("click", function(e) {
+        $(".deleteBooking").on("click", function(e) {
             e.preventDefault();
-            var userId = $(this).data("id");
-            if (confirm("Delete this user?")) {
+            var bookingId = $(this).data("id");
+            if (confirm("Delete this booking?")) {
                 $.ajax({
                     type: "DELETE",
-                    url: "/admin/users/" + userId,
-                    data: {userId: userId},
+                    url: "/admin/bookings/" + bookingId,
+                    data: {bookingId: bookingId},
                     success: function() {
                         // reload the page after successful deletion
                         window.location.reload(); 

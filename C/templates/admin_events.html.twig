@@ -12,11 +12,7 @@
                 <th><span>eventID</span></th>
                 <th><span>Name</span></th>
                 <th><span>Date</span></th>
-                <th><span>Sarttime</span></th>
-                <th><span>Endtime</span></th>
                 <th><span>Price</span></th>
-                <th><span>Organizer</span></th>
-                <th><span>Venue</span></th>
                 <th><span>Capacity</span></th>
                 <th><span>Attendees</span></th>
             </tr>
@@ -34,19 +30,7 @@
                     <span>{{ events.date }}</span>
                 </td>
                 <td>
-                    <span>{{ events.starttime }}</span>
-                </td>
-                <td>
-                    <span>{{ events.endtime }}</span>
-                </td>
-                <td>
                     <span>{{ events.price }}</span>
-                </td>
-                <td>
-                    <span>{{ events.organizer }}</span>
-                </td>
-                <td>
-                    <span>{{ events.venue }}</span>
                 </td>
                 <td>
                     <span>{{ events.capacity }}</span>
@@ -56,8 +40,9 @@
                 </td>
                 <td>
                     <span id="info">
+                    <a href="/updateevent/{{ events.eventId }}" class="updateEvent"><i class="fa fa-search-plus fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
                     <a href="/updateevent/{{ events.eventId }}" class="updateEvent"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                    <a href="#" class="deleteUser" data-user-id="{{ events.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    <a href="#" class="deleteEvent" data-user-id="{{ events.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
                     </span>
                 </td>
             </tr>
@@ -69,42 +54,24 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function(){
-        $(".updateEvent").on("click", function(event) {
-            // prevent default form submission behavior
-            event.preventDefault(); 
-            var userId = $(this).attr("href").split('/')[2]; // extract eventId from href attribute
-            $.ajax({
-                type: "POST",
-                url: "/admin/updateevent/" + userId,
-                success: function() {
-                    window.location.href = "/admin/updateevent/" + eventId; 
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    // log any errors to the console
-                    console.error(errorThrown);
-                }
-            });
-        });
-        {#$(".deleteUser").on("click",function(){
-            var userId = $(this).data("user-id");
-            check = confirm("Delete this user?");
-            if(check){
+       $(".deleteEvent").on("click", function(e) {
+            e.preventDefault();
+            var eventId = $(this).data("id");
+            if (confirm("Delete this event?")) {
                 $.ajax({
-                    type: "POST",
-                    url: window.location.href,
-                    data: {userId: userId},
-                    success: function(response) {
-                        console.log(response);
-                        window.location.reload();
+                    type: "DELETE",
+                    url: "/admin/events/" + eventId,
+                    data: {eventId: eventId},
+                    success: function() {
+                        // reload the page after successful deletion
+                        window.location.reload(); 
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        // log any errors to the console
                         console.error(errorThrown);
                     }
                 });
             }
-            return false;
-        });#}
+        });
     });
 </script>
 

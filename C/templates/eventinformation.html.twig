@@ -1,0 +1,90 @@
+{% extends "master.html.twig" %}
+{% block title %}EventInfo{% endblock %}
+{% block content %}
+
+<section id="title" class="container">
+  <div>
+    <h3 class="h3"style="margin-left: -3%; font-size: 26px; color:#444">{{event.eventName}}</h3>
+  </div>
+</section>
+<section class="container">
+  <img
+    src="{{event.largePhotoPath}}"
+    width="100%"
+    style="border-radius: 10px"
+  />
+</section>
+<section id="eventinfo">
+  <div class="container text-center">
+    <div class="row">
+      <div class="col-sm">
+        <h2 id="h2" style="text-align: left;font-size:40px">{{event.eventName}}</h2>
+      </div>
+      <div class="col-sm">
+        <p style="text-align: right"><span>PRICE:</span> ${{event.price}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <p style="text-align: left">
+        <i class="fa fa-clock-o"></i> {{event.date}} @ {{event.startTime}} -
+        {{event.endTime}}
+      </p>
+      <p style="text-align: left">{{event.eventDescription}}</p>
+    </div>
+  </div>
+</section>
+<section style="margin-bottom: 2%; margin-top: 2%">
+  <div class="container text-left">
+    <h3 class="h3"style="color:#444">Event Details</h3>
+  </div>
+</section>
+<section class="eventinfomore">
+  <div class="container text-left">
+    <div class="row">
+      <div class="col-sm">
+        <p><i class="fa fa-calendar"></i><span> Date: </span>{{event.date}}</p>
+        <p>
+          <i class="fa fa-clock-o"></i><span> Time: </span>{{event.startTime}} -
+          {{event.endTime}}
+        </p>
+        <p>
+          <i class="fa fa-building"></i><span> Venue: </span>{{event.venue}}
+        </p>
+        <p>
+          <i class="fa fa-map-pin"></i><span> Address: </span>24 The Maples, QC
+          H1H2A2
+        </p>
+      </div>
+      <div class="col-sm">
+        <p>
+          <i class="fa fa-id-badge"></i
+          ><span> Organizer Name: </span>{{event.organizer}}
+        </p>
+        <p><i class="fa fa-phone"></i><span> Phone: </span>123-456-7890</p>
+        <p>
+          <i class="fa fa-globe"></i><span> Website: </span>www.playroom.com
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="container text-center">
+  <button id="book-event-btn" class="bookbutton" style="margin-top:0%; margin-bottom:7%">BOOK EVENT</button>
+</section>
+<div id="book-event-form-container">
+</div>
+
+<script>
+  $(document).ready(function() {
+  $("#book-event-btn").click(function() {
+    $(this).hide();
+    $.ajax({
+      url: "/booking-form",
+      success: function(data) {
+        $("#book-event-form-container").html(data);
+      }
+    });
+  }); 
+});
+</script>
+{% endblock content %}

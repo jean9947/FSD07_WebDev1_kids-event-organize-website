@@ -1,0 +1,27 @@
+{% extends "master.html.twig" %}
+{% block title %}Event{% endblock %}
+{% block content %}
+<section class="eventlist">
+  <div class="container" style="text-align: center;padding-bottom:2%">
+    <h3 id="h3" class="animate__animated animate__bounce" style="font-size:50px;">Event List</h3>
+  </div>
+</section>
+<section class="sectionTwo">
+  <div class="container text-center">
+    <div class="row row-cols-4">
+      {% for event in events %}
+        <div class="col" style="margin-bottom:3%">
+          <div class="insideCol">
+            <a href="/event/{{ event.eventId  }}"
+              ><img src="{{ event.smallPhotoPath }}" alt=""
+            /></a>
+            <h5 id="h5">{{ event.date }}</h5>
+            <h4 id="h4">{{ event.eventName }}</h4>
+            <p>{{ event.startTime }} - {{ event.endTime }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock content %}

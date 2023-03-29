@@ -1,5 +1,4 @@
-{% if flashMessage %}<div class="flashMessage">{{flashMessage}}</div>{% endif %}
-
+{# {% if flashMessage %}<div class="flashMessage">{{flashMessage}}</div>{% endif %} #}
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,7 +7,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway%3A300%2C400%2C500%2C600%2C700%7CBaloo+Chettan%3A300%2C400%2C500%2C600%2C700%7CAmatic+SC%3A300%2C400%2C500%2C600%2C700&subset=latin-ext%2Cgreek%2Cgreek-ext&ver=1.0.0"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Playroom-{% block title %}{% endblock %}</title>
+    {% block addHead %}
+    {% endblock %}
   </head>
   <body>
     <header>
