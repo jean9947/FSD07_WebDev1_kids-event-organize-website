@@ -430,7 +430,7 @@
 
   /********** ChihYin **********/ 
   #form {
-    margin: 50px 600px;
+    margin: 25px 600px;
     padding: 20px 20px;
     border-radius: 10px;
     text-align: center;
@@ -438,14 +438,25 @@
   }
 
   #admin_showall {
+    padding: 30px 10px;
+    font-family: "Baloo Chettan", cursive;
     text-align: center;
-    margin-top: 30px;
+    background-color: #f6e3db;
   }
 
-  #userList {
-    text-align: left;
+  .logged-in-message {
+    /* float: right; */
+    font-family: "Baloo Chettan", cursive;
+    font-weight: 1800;
   }
 
-  #loginas{
+  #usersmanage {
+    text-align: center;
+    font-family: "Baloo Chettan", cursive;
+    font-size: 2rem;
+  }
 
+  #usersmanage a {
+    font-size: 1rem;
+    color: #444;
   }

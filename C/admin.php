@@ -41,7 +41,7 @@ $app->get('/admin/users', function($request, $response) {
             ->withHeader('Location', '/login')
             ->withStatus(302);
     }
-    $users = DB::query("SELECT userId, username, firstName, lastName, phoneNumber, email FROM users");
+    $users = DB::query("SELECT userId, role, username, password, firstName, lastName, phoneNumber, email FROM users");
     return $this->get('view')->render($response, 'admin_users.html.twig', ['username' => $username, 'isAdmin' => $isAdmin, 'users' => $users]);
 });
 
@@ -129,7 +129,7 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
         // setFlashMessage("user added, redirecting to the admin page...");
         // return $response->withRedirect("/admin");   
     }
-});
+})->setName('addUser');
 
 /*************************************************************** */
 

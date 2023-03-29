@@ -1,26 +1,28 @@
 <nav>
   <a href="FinalProject/HomePage.html" id="logoLink">
-    <img src="./images/header-logo.png" alt="logo" style="margin-top: 10px;"/>
+    <img src="/images/header-logo.png" alt="logo" style="margin-top: 10px;"/>
   </a>
-  <ul class="nav justify-content-center" id="navBar">
-    <li class="nav-item">
-      <a class="nav-link" href="http://playroom.org/admin"> Admin Page </a>
-  </ul>
-
-  <ul class="nav justify-content-center" id="navBar">
-    <li class="nav-item">
+  <div id="adminNav">
+    <ul class="nav justify-content-center" id="navBar">
+      <li class="nav-item">
+        <a class="nav-link" href="http://playroom.org/admin"> Admin Page </a>
+      </li>
+      <li class="nav-item">
       <a class="nav-link" href="http://playroom.org/admin/users"> EDIT USERS </a>
-  </ul>
-
-  <ul class="nav justify-content-center" id="navBar">
-    <li class="nav-item">
-      <a class="nav-link" href="http://playroom.org/admin/bookings"> EDIT BOOKINGS </a>
-    </li>
-  </ul>
-
-  <ul class="nav justify-content-center" id="navBar">
-    <li class="nav-item">
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="http://playroom.org/admin/bookings"> EDIT BOOKINGS </a>
+      </li>
+      <li class="nav-item">
       <a class="nav-link" href="http://playroom.org/admin/event"> EDIT EVENTS </a>
     </li>
-  </ul>
+    </ul>
+    <div class="logged-in-message">
+      {% if isAdmin %}
+        <p>You are logged in as {{ username }}.&nbsp;&nbsp;<a href="{{ url_for('logout') }}">Logout</a></p><br>
+      {% else %}
+        <a class="nav-link" href="http://playroom.org/login">Admin must log in to edit.</a><br>
+      {% endif %}
+    </div>
+  </div>
 </nav>

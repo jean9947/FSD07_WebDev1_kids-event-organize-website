@@ -3,28 +3,63 @@
 
 {% block content %}
 
-<div id="admin_showall">
-    <h2>Manage Users</h2>
-    <br>
-    <button id="btnAddUser" class="btnAddUser" type="submit">Add User</button>
-    <br><br>
+<p id="usersmanage">
+Manage Users<br>
+<a href="{{ url_for('addUser') }}">Add a new user</a>
+<p>
 
-    <ul id="userList">
-    {% for user in users %}
-        <li class="list-group-item">
-            <span>{{ user.userId }}</span>&nbsp;&nbsp;
-            <span>{{ user.username }}</span>&nbsp;&nbsp;
-            <span>{{ user.firstName }}</span>&nbsp;&nbsp;
-            <span>{{ user.lastName }}</span>&nbsp;&nbsp;
-            <span>{{ user.phoneNumber }}</span>&nbsp;&nbsp;
-            <span>{{ user.email }}</span>&nbsp;&nbsp;
-            <span class="float-right">
-                <a href="/updateuser/{{ user.userId }}" class="updateUser"><i class="fa fa-edit fa-fw"></i></a>&nbsp;&nbsp;
-                <a href="#" class="deleteUser" data-user-id="{{ user.userId }}"><i class="fa fa-trash fa-fw"></i></a>
-            </span>
-        </li>
-    {% endfor %}
-    </ul>
+<div id="admin_showall">
+    <table class="table user-list">
+        <thead>
+            <tr>
+                <th><span>userID</span></th>
+                <th><span>role</span></th>
+                <th><span>username</span></th>
+                <th><span>Password</span></th>
+                <th><span>First name</span></th>
+                <th><span>Last name</span></th>
+                <th><span>Phone</span></th>
+                <th><span>Email</span></th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+{% for user in users %}
+        <tbody>
+            <tr>
+                <td>
+                    <span>{{ user.userId }}</span>
+                </td>
+                <td>
+                    <span>{{ user.role }}</span>
+                </td>
+                <td>
+                    <span>{{ user.username }}</span>
+                </td>
+                <td>
+                    <span>{{ user.password }}</span>
+                </td>
+                <td>
+                    <span>{{ user.firstName }}</span>
+                </td>
+                <td>
+                    <span>{{ user.lastName }}</span>
+                </td>
+                <td>
+                    <span>{{ user.phoneNumber }}</span>
+                </td>
+                <td>
+                    <span>{{ user.email }}</span>
+                </td>
+                <td>
+                    <span id="info">
+                    <a href="/updateuser/{{ user.userId }}" class="updateUser"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    <a href="#" class="deleteUser" data-user-id="{{ user.userId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+{% endfor %}
+    </table>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
