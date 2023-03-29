@@ -425,3 +425,144 @@ p,
 #gallery .col-sm {
   padding-top: 3%;
 }
+
+/* ---------Siyi---------- */
+#title {
+  background-color: white;
+  padding: 5%;
+  padding-bottom: 2%;
+}
+
+.h3 {
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 1800;
+  color: #444;
+  text-align: left;
+}
+
+#eventinfo > div {
+  margin-top: 4%;
+  padding-right: 3%;
+}
+
+#eventinfo h2 {
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 1800;
+  color: #444;
+  text-align: left;
+  font-size: 42px;
+}
+
+#eventinfo p,
+.eventinfomore p {
+  color: #444;
+}
+
+#eventinfo span,
+.eventinfomore span {
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 1800;
+  color: #444;
+  text-align: left;
+  font-size: 18px;
+}
+
+.eventinfomore {
+  margin-bottom: 2%;
+}
+
+.bookbutton {
+  background-color: rgb(248, 234, 226);
+  width: 155px;
+  height: 60px;
+  border-width: 3px;
+  border-color: rgb(250, 115, 43);
+  border-style: dotted;
+  border-radius: 12px;
+  margin-bottom: 20%;
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 900;
+  color: rgb(250, 115, 43);
+  font-size: 24px;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.bookbutton :hover {
+  color: rgb(251, 184, 0);
+  transition: 1s;
+}
+
+#bookingform {
+  background-color: rgb(248, 234, 226);
+  margin-bottom: 6%;
+  border: rgb(250, 115, 43) dotted 5px;
+  border-radius: 25px;
+}
+
+#bookingform form {
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 1800;
+  color: #444;
+  font-size: 20px;
+  padding-bottom: 2%;
+  margin: 2% 2% 2% 2%;
+}
+#bookingform label {
+  margin-top: 1%;
+  font-size: 20px;
+}
+
+#bookingform button {
+  background-color: white;
+  margin: 1%;
+  margin-top: 4%;
+  width: 100px;
+  height: 50px;
+  border-width: 3px;
+  border-color: rgb(250, 115, 43);
+  border-style: dotted;
+  border-radius: 12px;
+  /* margin-bottom: 20%; */
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 900;
+  color: rgb(250, 115, 43);
+  font-size: 22px;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+/********** END **********/
+
+/********** ChihYin **********/
+#form {
+  margin: 25px 600px;
+  padding: 20px 20px;
+  border-radius: 10px;
+  text-align: center;
+  background-color: #c3e1db;
+}
+
+#admin_showall {
+  padding: 30px 10px;
+  font-family: "Baloo Chettan", cursive;
+  text-align: center;
+  background-color: #f6e3db;
+}
+
+.logged-in-message {
+  /* float: right; */
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 1800;
+}
+
+#usersmanage {
+  text-align: center;
+  font-family: "Baloo Chettan", cursive;
+  font-size: 2rem;
+}
+
+#usersmanage a {
+  font-size: 1rem;
+  color: #444;
+}
+/********** END **********/

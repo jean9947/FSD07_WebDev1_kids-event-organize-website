@@ -52,12 +52,14 @@
 - Ajax using in forms
 - review the video provided by Professor
 
+
 2023/03/28 Siyi
 1. Done / not done since the last scrum:
 - continue working on event page
 - create 5 pages of event datails
 2. To do until the next Scrum:
 - create Bookings database
+- create children database
 - customer add booking
 - try to use AJAX to display the form on the same page
 3. Need assistance / figure things out
@@ -72,3 +74,29 @@
 - test admin CRUD
 3. Need assistance / figure things out
 - review the video provided by Professor
+
+
+2023/03/29 Siyi
+1. Done / not done since the last scrum:
+- create bookings database
+- create children database
+- customer add booking
+- use AJAX to display the form on the same page
+2. To do until the next Scrum:
+- complete the update function in my bookings page
+- list all the bookings in my bookings page
+- *insert the child information in session*
+3. Need assistance / figure things out
+- 
+
+2023/03/29 ChihYin
+1. Done / not done since the last scrum:
+- complete admin user page
+- complete admin event CRUD
+2. To do until the next Scrum:
+- show events on admin/eventslist page
+- test admin event CRUD
+- complete admin booking page CRUD
+3. Need assistance / figure things out
+- fulfill the function of add and update in the same page instead of redirecting
+

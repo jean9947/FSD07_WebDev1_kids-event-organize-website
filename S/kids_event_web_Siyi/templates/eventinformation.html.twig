@@ -69,7 +69,22 @@
   </div>
 </section>
 <section class="container text-center">
-  <button id="button" style="margin-top:0%; margin-bottom:7%"><a href="#">BOOK EVENT</a></button>
+  <button id="book-event-btn" class="bookbutton" style="margin-top:0%; margin-bottom:7%">BOOK EVENT</button>
 </section>
+<div id="book-event-form-container">
+</div>
 
+<script>
+  $(document).ready(function() {
+  $("#book-event-btn").click(function() {
+    $(this).hide();
+    $.ajax({
+      url: "/booking-form",
+      success: function(data) {
+        $("#book-event-form-container").html(data);
+      }
+    });
+  }); 
+});
+</script>
 {% endblock content %}
