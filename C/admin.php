@@ -106,10 +106,12 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
         || (preg_match("/[0-9]/", $password) !== 1)
     ) {
         $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
+        $password = "";
     }
     // validate phone
     if (preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", $phoneNumber) !== 1) {
         $errorList[] ="Phone number format is 000-000-0000";
+        $phoneNumber = "";
     }
     // validate email
     if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
