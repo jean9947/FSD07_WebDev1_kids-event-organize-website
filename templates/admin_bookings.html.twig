@@ -1,0 +1,112 @@
+{% extends "admin.html.twig" %}
+{% block title %} - Bookings{% endblock %}
+
+{% block content %}
+
+<p id="usersmanage">Manage Bookings<p>
+
+<div id="admin_showall">
+    <table class="table user-list">
+        <thead>
+            <tr>
+                <th><span>Booking ID</span></th>
+                <th><span>Event ID</span></th>
+                <th><span>User ID</span></th>
+                <th><span>Child ID</span></th>
+                <th><span>Booked Time</span></th>
+
+
+            </tr>
+        </thead>
+{% for booking in bookings %}
+        <tbody>
+            <tr>
+                <td>
+                    <span>{{ booking.bookingId }}</span>
+                </td>
+                <td>
+                    <span>{{ booking.eventId }}</span>
+                </td>
+                <td>
+                    <span>{{ booking.userId }}</span>
+                </td>
+                <td>
+                    <span>{{ booking.childId }}</span>
+                </td>
+                <td>
+                    <span>{{ booking.bookingTimeStamp }}</span>
+                </td>
+                <td>
+                    <span id="info">
+                    <a href="/updatebooking/{{ booking.bookingId }}" class="updateBooking"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    <a href="#" class="deleteBooking" data-id="{{ booking.bookingId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+{% endfor %}
+
+    </table>
+    <br>
+    <section class="container text-center">
+        <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%">ADD</button>
+    </section>
+
+    <div id="addUser-form-container">
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $("#btnAddUser").click(function() {
+            $(this).hide();
+            $.ajax({
+            url: "/admin/addbooking",
+            success: function(data) {
+                $("#addUser-form-container").html(data);
+            }
+            });
+        }); 
+        $(".updateBooking").on("click", function(event) {
+            // prevent default form submission behavior
+            event.preventDefault(); 
+            var bookingId = $(this).attr("href").split('/')[2]; // extract bookingId from href attribute
+            $.ajax({
+                type: "POST",
+                url: "/admin/updatebooking/" + bookingId,
+                success: function() {
+                    window.location.href = "/admin/updatebooking/" + bookingId; 
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // log any errors to the console
+                    console.error(errorThrown);
+                }
+            });
+        });
+        $(".deleteBooking").on("click", function(e) {
+            e.preventDefault();
+            var bookingId = $(this).data("id");
+            if (confirm("Delete this booking?")) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "/admin/bookings/" + bookingId,
+                    data: {bookingId: bookingId},
+                    success: function() {
+                        // reload the page after successful deletion
+                        window.location.reload(); 
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error(errorThrown);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+
+{% endblock content %}
+
+

@@ -23,6 +23,7 @@
 - how to use password_hash() to encrypt passwords
 - review the video provided by Professor
 
+***********************************************************************************
 
 2023/03/27 Siyi
 1. Done / not done since the last scrum:
@@ -52,6 +53,7 @@
 - Ajax using in forms
 - review the video provided by Professor
 
+***********************************************************************************
 
 2023/03/28 Siyi
 1. Done / not done since the last scrum:
@@ -75,6 +77,7 @@
 3. Need assistance / figure things out
 - review the video provided by Professor
 
+***********************************************************************************
 
 2023/03/29 Siyi
 1. Done / not done since the last scrum:
@@ -99,4 +102,27 @@
 - complete admin booking page CRUD
 3. Need assistance / figure things out
 - fulfill the function of add and update in the same page instead of redirecting
+
+***********************************************************************************
+
+2023/03/30 Siyi
+1. Done / not done since the last scrum:
+- complete the CSS of my bookings page
+- create the login and register label and make it works
+2. To do until the next Scrum:
+- working on the update function in my bookings page
+- complete list all the bookings in my bookings page
+- working on the delete function in my bookings page
+3. Need assistance / figure things out
+- add ajax on the booking form page
+
+2023/03/30 ChihYin
+1. Done / not done since the last scrum:
+- show events on admin/eventslist page
+- complete admin booking page CRUD
+2. To do until the next Scrum:
+- hosting the project
+- fulfill the function of update in the same page instead of redirecting
+3. Need assistance / figure things out
+- solve the problem of event list page
 
