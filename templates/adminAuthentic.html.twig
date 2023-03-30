@@ -1,5 +1,4 @@
-<div>
+
     {% if isAdmin %}
-    <p class="logged-in-message">Logged in as {{ username }}.&nbsp;&nbsp;<a href="{{ url_for('logout') }}">Logout</a></p><br>
+    <p id="p">Logged in as {{ username }}.&nbsp;&nbsp;<a href="{{ url_for('logout') }}">Logout</a></p><br>
     {% endif %}
-</div>
