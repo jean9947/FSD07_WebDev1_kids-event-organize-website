@@ -132,11 +132,10 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
       unset($userRecord['password']);
       $_SESSION['user'] = $userRecord;
-      return $this->get('view')->render($response, 'admin.html.twig');
+      return $response->withHeader('Location', '/admin')->withStatus(302);
   } elseif ($loginSuccessful) { // logged in as a customer
       unset($userRecord['password']);
       $_SESSION['user'] = $userRecord;
-      //return $this->get('view')->render($response, 'loggedin.html.twig'); // TODO: change it to homepage and shown as logged in
       return $response->withHeader('Location', '/')->withStatus(302);
   } else {
       $response->getBody()->write("Invalid username or password");

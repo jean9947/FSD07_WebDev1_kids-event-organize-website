@@ -23,7 +23,8 @@ $app->get('/admin', function($request, $response, $args) {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
-    return $this->get('view')->render($response, 'admin.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin]);
+    $users = DB::query("SELECT userId, role, username, password, firstName, lastName, phoneNumber, email FROM users WHERE role='admin'");
+    return $this->get('view')->render($response, 'admin_users.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'users' => $users]);
 });
 
 
@@ -38,7 +39,7 @@ $app->get('/admin/users', function($request, $response) {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
-    $users = DB::query("SELECT userId, role, username, password, firstName, lastName, phoneNumber, email FROM users");
+    $users = DB::query("SELECT userId, role, username, password, firstName, lastName, phoneNumber, email FROM users WHERE role='parent'");
     return $this->get('view')->render($response, 'admin_users.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'users' => $users]);
 });
 

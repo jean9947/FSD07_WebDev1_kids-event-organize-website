@@ -1,4 +1,10 @@
-{% if flashMessage %}<div class="flashMessage">{{flashMessage}}</div>{% endif %}
+
+{% if flashMessage %}
+<div class="alert alert-warning" role="alert" style="text-align: center;">
+<div class="flashMessage">{{flashMessage}}</div>
+</div>
+{% endif %}
+
 
 <!DOCTYPE html>
 <html>
@@ -21,6 +27,123 @@
     <main>
         {% block content %}
 
+        {% if isAdmin %}
+        <p id="p">Logged in as {{ user }}.&nbsp;&nbsp;<a href="{{ url_for('logout') }}">Logout</a></p><br>
+        {% endif %}
+
+        <p id="usersmanage">Admin<p>
+
+        <div id="admin_showall">
+            <table class="table user-list">
+                <thead>
+                    <tr>
+                        <th><span>userID</span></th>
+                        <th><span>role</span></th>
+                        <th><span>username</span></th>
+                        <th><span>Password</span></th>
+                        <th><span>First name</span></th>
+                        <th><span>Last name</span></th>
+                        <th><span>Phone</span></th>
+                        <th><span>Email</span></th>
+                    </tr>
+                </thead>
+        {% for user in users %}
+                <tbody>
+                    <tr>
+                        <td>
+                            <span>{{ user.userId }}</span>
+                        </td>
+                        <td>
+                            <span>{{ user.role }}</span>
+                        </td>
+                        <td>
+                            <span>{{ user.username }}</span>
+                        </td>
+                        <td>
+                            <span>{{ user.password }}</span>
+                        </td>
+                        <td>
+                            <span>{{ user.firstName }}</span>
+                        </td>
+                        <td>
+                            <span>{{ user.lastName }}</span>
+                        </td>
+                        <td>
+                            <span>{{ user.phoneNumber }}</span>
+                        </td>
+                        <td>
+                            <span>{{ user.email }}</span>
+                        </td>
+                        <td>
+                            <span id="info">
+                            <a href="/updateuser/{{ user.userId }}" class="updateUser"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                            <a href="#" class="deleteUser" data-id="{{ user.userId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+        {% endfor %}
+
+            </table>
+            <br>
+            <section class="container text-center">
+                <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%">ADD ADMIN</button>
+            </section>
+
+            <div id="addUser-form-container">
+            </div>
+
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $("#btnAddUser").click(function() {
+                    $(this).hide();
+                    $.ajax({
+                    url: "/admin/adduser",
+                    success: function(data) {
+                        $("#addUser-form-container").html(data);
+                    }
+                    });
+                }); 
+                $(".updateUser").on("click", function(event) {
+                    // prevent default form submission behavior
+                    event.preventDefault(); 
+                    var userId = $(this).attr("href").split('/')[2]; // extract userId from href attribute
+                    $.ajax({
+                        type: "POST",
+                        url: "/admin/updateuser/" + userId,
+                        success: function() {
+                            window.location.href = "/admin/updateuser/" + userId; 
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            // log any errors to the console
+                            console.error(errorThrown);
+                        }
+                    });
+                });
+                $(".deleteUser").on("click", function(e) {
+                    e.preventDefault();
+                    var userId = $(this).data("id");
+                    if (confirm("Delete this user?")) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/admin/users/" + userId,
+                            data: {userId: userId},
+                            success: function() {
+                                // reload the page after successful deletion
+                                window.location.reload(); 
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error(errorThrown);
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+
         {% endblock %}
 
         <div id="information">
@@ -33,3 +156,4 @@
     </main>
   </body>
 </html>
+#}
