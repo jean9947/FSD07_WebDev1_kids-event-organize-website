@@ -1,0 +1,73 @@
+{% extends "master.html.twig" %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+<div style="padding-bottom:20% ; background-color:#f6e3db">
+<section class="eventlist">
+  <div class="container" style="text-align: center;padding-bottom:2%">
+    <h3 id="h3" class="animate__animated animate__bounce" style="font-size:50px;">My Bookings</h3>
+  </div>
+</section>
+<section class="mybookings">
+  <div class="container text-center">
+    {# {% for event in events %} #}
+      <div class="row" id="mybookingInfoRows">
+        <div class="col-3">
+          <a href="/event/1"
+            ><img src="/images/h1-eventlist-img-1-1-800x593.jpg" alt="" style="width:100%"
+          /></a>
+        </div>
+
+        <div class="col-6" id="bookingContent">
+          <h4 id="h4" style="font-size:30px">Event: Art & Craft</h4>
+          <span><b>Date:</b> 2023-Mar-30 @ 09:00 - 11:00</span><br>
+          <span><b>Venue:</b> Kids room No.01</span><br>
+          <span><b>Price:</b> $120.00</span><br>
+          <span><b>For:</b> Mia Wills</span>
+        </div>
+
+        <div class="col-3">
+          <button>EDIT</button><br>
+          <button>CANCEL</button>
+        </div>
+      </div>
+
+
+      <div class="row" id="mybookingInfoRows">
+        <div class="col">
+          <a href="/event/1"
+            ><img src="/images/h1-eventlist-img-1-1-800x593.jpg" alt="" style="width:100%"
+          /></a>
+        </div>
+        <div class="col-6">
+          <h5 id="h5">{{ event.date }}</h5>
+          <h4 id="h4">{{ event.eventName }}</h4>
+          <p>{{ event.startTime }} - {{ event.endTime }}</p>
+        </div>
+        <div class="col">
+          <button>EDIT</button><br>
+          <button>CANCEL</button>
+        </div>
+      </div>
+
+
+      <div class="row" id="mybookingInfoRows">
+        <div class="col">
+          <a href="/event/1"
+            ><img src="/images/h1-eventlist-img-1-1-800x593.jpg" alt="" style="width:100%"
+          /></a>
+        </div>
+        <div class="col-6">
+          <h5 id="h5">{{ event.date }}</h5>
+          <h4 id="h4">{{ event.eventName }}</h4>
+          <p>{{ event.startTime }} - {{ event.endTime }}</p>
+        </div>
+        <div class="col">
+          <button>EDIT</button><br>
+          <button>CANCEL</button>
+        </div>
+      </div>
+    {# {% endfor %} #}
+  </div>
+</section>
+</div>
+{% endblock content %}
