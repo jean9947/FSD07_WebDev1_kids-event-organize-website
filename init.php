@@ -12,7 +12,7 @@ use Slim\Middleware\FlashMiddleware;
 use Slim\Flash\Messages;
 
 
-require_once __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 session_start();
 
