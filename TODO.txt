@@ -1,0 +1,15 @@
+Top:
+- monolog
+- Recommended: online payment processing (e.g. https://stripe.com/en-ca in test mode,  https://developer.paypal.com/docs/integration/direct/payments/test-the-api/)
+- hash password
+- edit children
+- improve the flash message
+
+
+Medium:
+- email "click to activate account", email password reset link (and encrypt passwords always)
+- multiple languages support (multiple templates in subdirecties 'en' 'fr') or gettext, maybe boronczyk/localization-middleware (search for solutions online) https://twig-extensions.readthedocs.io/en/latest/i18n.html
+
+Low:
+- CSS for printing
+- calendar library e.g. https://fullcalendar.io/demos
