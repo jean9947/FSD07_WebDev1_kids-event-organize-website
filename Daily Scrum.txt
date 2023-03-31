@@ -126,3 +126,31 @@
 3. Need assistance / figure things out
 - solve the problem of event list page
 
+***********************************************************************************
+
+2023/03/31 Siyi
+1. Done / not done since the last scrum:
+- working on the update function in my bookings page
+- complete list all the bookings in my bookings page
+- complete the delete function in my bookings page
+2. To do until the next Scrum:
+- complete the update function in my bookings page
+- online payment processing
+- hash password
+- improve the flash message
+- multiple languages support
+3. Need assistance / figure things out
+- need to find how online payment work
+
+2023/03/31 ChihYin
+1. Done / not done since the last scrum:
+- hosting the project
+- fulfill the function of update in the same page instead of redirecting
+- reset password
+2. To do until the next Scrum:
+- online payment processing
+- hash password
+- email "click to activate account", email password reset link (and encrypt passwords always)
+3. Need assistance / figure things out
+- need to find how online payment work
+
