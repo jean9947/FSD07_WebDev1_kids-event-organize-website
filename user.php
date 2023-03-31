@@ -51,7 +51,8 @@ $app->post('/register', function ($request, $response, $args) {
   $password = $data['password'];
   $phoneNumber = $data['phoneNumber'];
   $email = $data['email'];
-    
+  
+  
   $errorList = [];
   // validate firstname
   if (strlen($firstName) < 2 || strlen($firstName) > 100) {
@@ -74,6 +75,7 @@ $app->post('/register', function ($request, $response, $args) {
           $username = "";
         }
   }
+
   // validate password
   if (
       strlen($password) < 6 || strlen($password) > 100
@@ -82,12 +84,10 @@ $app->post('/register', function ($request, $response, $args) {
       || (preg_match("/[0-9]/", $password) !== 1)
   ) {
       $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
-      $password ="";
   }
   // validate phone
   if (preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", $phoneNumber) !== 1) {
       $errorList[] ="Phone number format is 000-000-0000";
-      $phoneNumber = "";
   }
   // validate email
   if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
@@ -107,6 +107,7 @@ $app->post('/register', function ($request, $response, $args) {
   } else { // STATE 3: sucess - add new user to the DB
       DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
       'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
+      // return $this->get('view')->render($response, 'registered.html.twig');
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
@@ -131,10 +132,11 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
       unset($userRecord['password']);
       $_SESSION['user'] = $userRecord;
-      return $response->withHeader('Location', '/admin')->withStatus(302);
+      return $this->get('view')->render($response, 'admin.html.twig');
   } elseif ($loginSuccessful) { // logged in as a customer
       unset($userRecord['password']);
       $_SESSION['user'] = $userRecord;
+      //return $this->get('view')->render($response, 'loggedin.html.twig'); // TODO: change it to homepage and shown as logged in
       return $response->withHeader('Location', '/')->withStatus(302);
   } else {
       $response->getBody()->write("Invalid username or password");
@@ -148,68 +150,17 @@ $app->get('/logout', function ($request, $response, $args) {
   unset($_SESSION['user']);
   session_destroy();
   setFlashMessage("You've been logged out.");
-  return $response->withHeader('Location', '/')->withStatus(302);
+  return $response
+      ->withHeader('Location', '/')
+      ->withStatus(302);
+  // return $this->get('view')->render($response, 'logout.html.twig');
 })->setName('logout');
 
-
-/**Reset Password */
-$app->get('/resetpassword', function ($request, $response, $args) {
-  // validate if the user is logged in already
-  if (!isset($_SESSION['user'])) {
-    return $this->get('view')->render($response, 'resetPassword.html.twig');
-  } else {
-    setFlashMessage("You're already logged in");
-    return $response->withHeader('Location', '/')->withStatus(302);
-  }
-});
-
-$app->post('/resetpassword', function ($request, $response, $args) {
-  $data = $request->getParsedBody();
-  $username = $data['username'];
-  $password1 = $data['password1'];
-  $password2 = $data['password2'];
-  $errorList = [];
-
-  // validate if username is in the db 
-  $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
-  if (!$userRecord['username'] == $username) {
-    $errorList[] = "Username not found";
-    $username = "";
-  }
-  // validate password
-  if (
-      strlen($password1) < 6 || strlen($password1) > 100
-      || (preg_match("/[A-Z]/", $password1) !== 1)
-      || (preg_match("/[a-z]/", $password1) !== 1)
-      || (preg_match("/[0-9]/", $password1) !== 1)
-  ) {
-      $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
-      $password1 = "";
-      $password2 = "";
-  }
-  if (!($password1 == $password2)) {
-      $errorList[] = "Passwords don't match";
-      $password1 = "";
-      $password2 = "";
-  }
-
-  if ($errorList) { // STATE 2: errors
-    $valuesList = ['username' => $username, 'password1' => $password1, 'password2' => $password2];
-    return $this->get('view')->render($response, 'resetPassword.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
-  } else { // STATE 3: sucess - reset password and update data to the DB
-      DB::update('users', ['password' => $password2], "username=%s", $username);
-      setFlashMessage("Password reset successfully.");
-      return $response->withHeader('Location', '/login')->withStatus(302);
-  }
-});
-
-
-/**************************************************************************************** */
 // Get event page
 $app->get('/event', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   // Fetch all events from the database
-  $events = DB::query('SELECT * FROM events');
+  $events = DB::query('SELECT * FROM events WHERE DATE(date) > CURDATE()');
   foreach ($events as &$event) {
     $startTime = new DateTime($event['startTime']);
     $event['startTime'] = $startTime->format('g:i A');
@@ -257,10 +208,10 @@ $app->get('/gallery', function ($request, $response, $args) {
 });
 
 // Get my bookings page
-$app->get('/mybookings', function ($request, $response, $args) {
-  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
-  return $this->get('view')->render($response, 'mybookings.html.twig',['session' => ['user' => $userData]]);
-});
+// $app->get('/mybookings', function ($request, $response, $args) {
+//   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+//   return $this->get('view')->render($response, 'mybookings.html.twig',['session' => ['user' => $userData]]);
+// });
 
 // Use AJAX to display event detail page and form on the same page
 $app->get('/booking-form', function( $request, $response, $args) {
@@ -326,5 +277,25 @@ $app->post('/booking-form', function ($request, $response, $args) {
   }
 });
 
+$app->get('/mybookings', function ($request, $response, $args) {
+  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+  // Fetch all bookings from the database
+  $bookings = DB::query('SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId
+    FROM bookings AS b
+    JOIN children AS c ON b.childId = c.childId
+    JOIN users AS u ON b.userId = u.userId
+    JOIN events AS e ON b.eventId = e.eventId
+    WHERE DATE(e.date) > CURDATE()
+  ');
+  // Render the events page using the events data
+  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
+});
+
+/** DELETE mybooking */
+$app->delete('/mybookings/{bookingId}', function ($request, $response, $args) {
+  $bookingId = $args['bookingId'];
+  DB::delete('bookings', 'bookingId=%d', $bookingId);
+  return $this->get('view')->render($response, 'mybookings.html.twig');
+});
 
 // $app->run();

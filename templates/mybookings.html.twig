@@ -9,65 +9,68 @@
 </section>
 <section class="mybookings">
   <div class="container text-center">
-    {# {% for event in events %} #}
+    {% for booking in bookings %}
       <div class="row" id="mybookingInfoRows">
         <div class="col-3">
-          <a href="/event/1"
-            ><img src="/images/h1-eventlist-img-1-1-800x593.jpg" alt="" style="width:100%"
+          <a href="/event/{{booking.eventId}}"
+            ><img src="{{ booking.smallPhotoPath }}" alt="" style="width:100%"
           /></a>
         </div>
 
         <div class="col-6" id="bookingContent">
-          <h4 id="h4" style="font-size:30px">Event: Art & Craft</h4>
-          <span><b>Date:</b> 2023-Mar-30 @ 09:00 - 11:00</span><br>
-          <span><b>Venue:</b> Kids room No.01</span><br>
-          <span><b>Price:</b> $120.00</span><br>
-          <span><b>For:</b> Mia Wills</span>
+          <h4 id="h4" style="font-size:30px">Event: {{ booking.eventName }}</h4>
+          <span><b>For:</b> {{ booking.firstName }} {{ booking.lastName }}</span><br>
+          <span><b>Date:</b> {{ booking.date }} @ {{ booking.startTime }} - {{ booking.endTime }}</span><br>
+          <span><b>Venue:</b> {{ booking.venue }}</span><br>
+          <span><b>Price:</b> ${{ booking.price }}</span>
+          
         </div>
 
-        <div class="col-3">
-          <button>EDIT</button><br>
-          <button>CANCEL</button>
+        <div class="col-3" style="margin-left:-3%">
+          <a href="/editMybooking/{{ booking.bookingId }}" class="editMyBooking"><button>EDIT</button></a><br>
+          <a href="#" class="cancelMyBooking" data-id="{{ booking.bookingId }}"><button id="bcancel">CANCEL</button></a>
         </div>
       </div>
-
-
-      <div class="row" id="mybookingInfoRows">
-        <div class="col">
-          <a href="/event/1"
-            ><img src="/images/h1-eventlist-img-1-1-800x593.jpg" alt="" style="width:100%"
-          /></a>
-        </div>
-        <div class="col-6">
-          <h5 id="h5">{{ event.date }}</h5>
-          <h4 id="h4">{{ event.eventName }}</h4>
-          <p>{{ event.startTime }} - {{ event.endTime }}</p>
-        </div>
-        <div class="col">
-          <button>EDIT</button><br>
-          <button>CANCEL</button>
-        </div>
-      </div>
-
-
-      <div class="row" id="mybookingInfoRows">
-        <div class="col">
-          <a href="/event/1"
-            ><img src="/images/h1-eventlist-img-1-1-800x593.jpg" alt="" style="width:100%"
-          /></a>
-        </div>
-        <div class="col-6">
-          <h5 id="h5">{{ event.date }}</h5>
-          <h4 id="h4">{{ event.eventName }}</h4>
-          <p>{{ event.startTime }} - {{ event.endTime }}</p>
-        </div>
-        <div class="col">
-          <button>EDIT</button><br>
-          <button>CANCEL</button>
-        </div>
-      </div>
-    {# {% endfor %} #}
+      <div id="edit-book-event-form-container"><div>
+    {% endfor %}
   </div>
 </section>
 </div>
+
+<script>
+  $(document).ready(function(){
+    $(".cancelMyBooking").on("click", function(e) {
+      e.preventDefault();
+      var bookingId = $(this).data("id");
+      if (confirm("Delete this booking?")) {
+        $.ajax({
+            type: "DELETE",
+            url: "/mybookings/" + bookingId,
+            data: {bookingId: bookingId},
+            success: function() {
+                // reload the page after successful deletion
+                window.location.reload(); 
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error(errorThrown);
+            }
+        });
+      }
+    });
+  });
+</script>
+
+<script>
+  $(document).ready(function() {
+  $(".editMyBooking").click(function() {
+    var bookingId = $(this).attr("href").split('/')[2];
+    $.ajax({
+      url: "/editMybooking/"+ bookingId ,
+      success: function(data) {
+        $("#edit-book-event-form-container").html(data);
+      }
+    });
+  }); 
+});
+</script>
 {% endblock content %}

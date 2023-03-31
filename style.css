@@ -138,6 +138,11 @@ p,
   transition: 1s;
 }
 
+#bcancel:hover {
+  color: rgb(255, 112, 72);
+  transition: 1s;
+}
+
 .learnandplay {
   background-color: #f6e3db;
 }
@@ -539,12 +544,13 @@ p,
 
 .mybookings {
   background-color: #f6e3db;
+  padding-bottom: 18%;
 }
 
 #mybookingInfoRows {
   background-color: white;
   padding: 2%;
-  margin-top: 4%;
+  margin: 4% 8%;
   border-radius: 20px;
 }
 
@@ -572,6 +578,13 @@ p,
 
 #bookingContent {
   text-align: left;
+  margin-left: 3%;
+}
+
+#bcancel {
+  background-color: #ffdbd5;
+  border-color: rgb(246, 69, 25);
+  color: rgb(246, 69, 25);
 }
 
 #userauthentic {
@@ -608,7 +621,6 @@ p,
   text-align: center;
   background-color: #c3e1db;
 }
-
 
 #usersmanage {
   text-align: center;
