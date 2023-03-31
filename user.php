@@ -316,12 +316,6 @@ $app->get('/gallery', function ($request, $response, $args) {
   return $this->get('view')->render($response, 'gallery.html.twig',['session' => ['user' => $userData]]);
 });
 
-// Get my bookings page
-$app->get('/mybookings', function ($request, $response, $args) {
-  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
-  return $this->get('view')->render($response, 'mybookings.html.twig',['session' => ['user' => $userData]]);
-});
-
 // Use AJAX to display event detail page and form on the same page
 $app->get('/booking-form', function( $request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
