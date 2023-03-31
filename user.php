@@ -386,5 +386,26 @@ $app->post('/booking-form', function ($request, $response, $args) {
   }
 });
 
+$app->get('/mybookings', function ($request, $response, $args) {
+  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+  $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
+  // Fetch bookings only for the logged-in user from the database
+  $bookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId
+    FROM bookings AS b
+    JOIN children AS c ON b.childId = c.childId
+    JOIN users AS u ON b.userId = u.userId
+    JOIN events AS e ON b.eventId = e.eventId
+    WHERE DATE(e.date) > CURDATE() AND u.userId = %d", $userId);
+  // Render the events page using the events data
+  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
+});
+
+/** DELETE mybooking */
+$app->delete('/mybookings/{bookingId}', function ($request, $response, $args) {
+  $bookingId = $args['bookingId'];
+  DB::delete('bookings', 'bookingId=%d', $bookingId);
+  return $this->get('view')->render($response, 'mybookings.html.twig');
+});
+
 
 // $app->run();
