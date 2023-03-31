@@ -21,39 +21,60 @@
         <tbody>
             <tr>
                 <td>
-                    <span>{{ events.eventId }}</span>
+                    <span>{{ event.eventId }}</span>
                 </td>
                 <td>
-                    <span>{{ events.eventName }}</span>
+                    <span>{{ event.eventName }}</span>
                 </td>
                 <td>
-                    <span>{{ events.date }}</span>
+                    <span>{{ event.date }}</span>
                 </td>
                 <td>
-                    <span>{{ events.price }}</span>
+                    <span>{{ event.price }}</span>
                 </td>
                 <td>
-                    <span>{{ events.capacity }}</span>
+                    <span>{{ event.capacity }}</span>
                 </td>
                 <td>
-                    <span>{{ events.attendeesCount }}</span>
+                    <span>{{ event.attendeesCount }}</span>
                 </td>
                 <td>
                     <span id="info">
-                    <a href="/updateevent/{{ events.eventId }}" class="updateEvent"><i class="fa fa-search-plus fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                    <a href="/updateevent/{{ events.eventId }}" class="updateEvent"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                    <a href="#" class="deleteEvent" data-user-id="{{ events.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    <a href="#" class="checkEvent"><i class="fa fa-search-plus fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    <a href="#" class="updateEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    <a href="#" class="deleteEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
                     </span>
                 </td>
             </tr>
         </tbody>
 {% endfor %}
+
     </table>
+    <br>
+{# 
+    <section class="container text-center">
+        <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%;">ADD EVENT</button>
+    </section>
+#}
+
+    <div id="addUser-form-container">
+    </div>
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function(){
+        $(".updateEvent").on("click", function() {
+            var eventId = $(this).data("id");
+            $.ajax({
+                url: "/admin/updateevent/" + eventId,
+                data: {eventId: eventId},
+                success: function(data) {
+                    $("#addUser-form-container").html(data); 
+                }
+            });
+        });
        $(".deleteEvent").on("click", function(e) {
             e.preventDefault();
             var eventId = $(this).data("id");

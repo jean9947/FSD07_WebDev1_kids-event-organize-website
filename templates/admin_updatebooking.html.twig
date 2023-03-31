@@ -1,5 +1,5 @@
 {% extends "admin.html.twig" %}
-{% block title %} - Update User{% endblock %}
+{% block title %} - Update Booking{% endblock %}
 
 
 {% block content %}
@@ -12,7 +12,7 @@
     </ul>
 {% endif %}
 
-<form method="POST" action="/admin/updatebooking" id="form">
+<form method="POST" enctype="multipart/form-data" id="form">
 <h3>Update Booking</h3><br />
     <label id="eventId">Event ID</label><br />
     <input  type="text" name="eventId" value="{{ v.eventId }}" required /><br /><br />

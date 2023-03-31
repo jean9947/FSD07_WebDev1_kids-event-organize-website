@@ -1,4 +1,4 @@
 
     {% if isAdmin %}
-    <p id="p">Logged in as {{ user }}.&nbsp;&nbsp;<a href="{{ url_for('logout') }}">Logout</a></p><br>
+    <p id="p">You are logged in as <span>{{ user }}</span>. Click Here to <a href="/logout"><span>logout</span></a>.</p>
     {% endif %}

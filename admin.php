@@ -16,15 +16,15 @@ require_once 'init.php';
 
 // Admin dashboard
 $app->get('/admin', function($request, $response, $args) {
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     $users = DB::query("SELECT userId, role, username, password, firstName, lastName, phoneNumber, email FROM users WHERE role='admin'");
-    return $this->get('view')->render($response, 'admin_users.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'users' => $users]);
+    return $this->get('view')->render($response, 'admin.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'users' => $users]);
 });
 
 
@@ -32,13 +32,13 @@ $app->get('/admin', function($request, $response, $args) {
 
 /** VIEW all users */
 $app->get('/admin/users', function($request, $response) {
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     $users = DB::query("SELECT userId, role, username, password, firstName, lastName, phoneNumber, email FROM users WHERE role='parent'");
     return $this->get('view')->render($response, 'admin_users.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'users' => $users]);
 });
@@ -141,27 +141,27 @@ $app->delete('/admin/users/{userId}', function ($request, $response, $args) {
 
 /** UPDATE user */
 $app->get('/admin/updateuser/{userId}', function ($request, $response, $args) {
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
 
     $userId = $args['userId'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $userId);
+    $userResult = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $userId);
     if (!$userRecord) {
         $response->getBody()->write("Error: user not found");
     }
-    return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'userRecord' => $userRecord]);
+    return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'userResult' => $userResult]);
 });
 
 $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
     $userId = $args['userId'];
     // Get the user record based on the provided id
-    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%d", $userId);
+    $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $userId);
     if (!$userRecord) {
         $response->getBody()->write("Error: user not found");
     }
@@ -185,17 +185,11 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
         $errorList []= "Last name must be 2-100 characters long";
         $lastName = "";
     }
-    // validate username and check if it's taken
+    // validate username
     if (preg_match('/^[a-z][a-z0-9_]{3,19}$/', $username) !== 1) {
         $errorList[] = "Username must be made up of 4-20 letters, digits, or underscore. The first character must be a letter";
         $username = "";
-    } else {
-        $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
-        if ($userRecord) {
-            $errorList[] = "This username is already registered";
-            $username = "";
-          }
-    }
+    } 
     // validate password
     if (
         strlen($password) < 6 || strlen($password) > 100
@@ -217,15 +211,14 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
         $email = "";
     }
 
-
     if ($errorList) { // STATE 2: errors
         $valuesList = ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
         'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email];
         return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - update the user from the database
     DB::update('users', ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-    'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email]);
-    return $this->get('view')->render($response, 'admin_users.html.twig');
+    'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email], "userId=%i", $userId);
+    return $response->withHeader('Location', '/admin/users')->withStatus(302);
     }
 });
 
@@ -235,13 +228,13 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
 
 /** VIEW all bookings */
 $app->get('/admin/bookings', function($request, $response) {
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     $booking = DB::query("SELECT bookingId, eventId , userId, childId, bookingTimeStamp FROM bookings");
     return $this->get('view')->render($response, 'admin_bookings.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'bookings' => $booking]);
 });
@@ -291,18 +284,17 @@ $app->delete('/admin/bookings/{bookingId}', function ($request, $response, $args
 
 /** UPDATE booking */
 $app->get('/admin/updatebooking/{bookingId}', function ($request, $response, $args) {
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
-
-    $events = DB::query("SELECT * FROM events");
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+  
     $bookingId = $args['bookingId'];
     // Get the user record based on the provided id
-    $bookingRecord = DB::queryFirstRow("SELECT * FROM bookings WHERE bookingId=%d", $bookingId);
+    $bookingRecord = DB::queryFirstRow("SELECT * FROM bookings WHERE bookingId=%i", $bookingId);
     if (!$bookingRecord) {
         $response->getBody()->write("Error: booking not found");
     }
@@ -313,7 +305,7 @@ $app->get('/admin/updatebooking/{bookingId}', function ($request, $response, $ar
 $app->post('/admin/updatebooking/{bookingId}', function ($request, $response, $args) {
     $bookingId = $args['bookingId'];
     // Get the user record based on the provided id
-    $bookingRecord = DB::queryFirstRow("SELECT * FROM bookings WHERE bookingId=%d", $bookingId);
+    $bookingRecord = DB::queryFirstRow("SELECT * FROM bookings WHERE bookingId=%i", $bookingId);
     if (!$bookingRecord) {
         $response->getBody()->write("Error: booking not found");
     }
@@ -330,9 +322,9 @@ $app->post('/admin/updatebooking/{bookingId}', function ($request, $response, $a
       }
     if ($errorList) { // STATE 2: errors
     $valuesList = ['eventId' => $eventId, 'userId' => $userId, 'childId' => $childId];
-    return $this->get('view')->render($response, 'admin_addbooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+    return $this->get('view')->render($response, 'admin_updatebooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - add new user to the DB
-        DB::update('bookings', ['eventId' => $eventId, 'userId' => $userId, 'childId' => $childId]);
+        DB::update('bookings', ['eventId' => $eventId, 'userId' => $userId, 'childId' => $childId], "bookingId=%i", $bookingId);
         return $response->withHeader('Location', '/admin/bookings')->withStatus(302);
     }
 });
@@ -343,17 +335,76 @@ $app->post('/admin/updatebooking/{bookingId}', function ($request, $response, $a
 
 /** VIEW all events */
 $app->get('/admin/events', function($request, $response) {
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
-    $event = DB::query("SELECT eventId, eventName, date, price, capacity, attendeesCount FROM events");
-    return $this->get('view')->render($response, 'admin_events.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'events' => $event]);
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    $events = DB::query("SELECT eventId, eventName, date, price, capacity, attendeesCount FROM events");
+    return $this->get('view')->render($response, 'admin_events.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'events' => $events]);
 });
 
+/** UPDATE event */
+$app->get('/admin/updateevent/{eventId}', function ($request, $response, $args) {
+    // Check if user is authenticated
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        setFlashMessage("Admin must log in to edit.");
+        return $response->withHeader('Location', '/login')->withStatus(302);
+    }
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+  
+    $eventId = $args['eventId'];
+    // Get the user record based on the provided id
+    $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%i", $eventId);
+    if (!$eventRecord) {
+        $response->getBody()->write("Error: event not found");
+    }
+    return $this->get('view')->render($response, 'admin_updateevent.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'eventRecord' => $eventRecord]);
+});
+
+$app->post('/admin/updateevent/{eventgId}', function ($request, $response, $args) {
+    $eventId = $args['eventId'];
+    // Get the user record based on the provided id
+    $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);
+    if (!$eventRecord) {
+        $response->getBody()->write("Error: event not found");
+    }
+
+    $data = $request->getParsedBody();
+    $eventName = $data['eventName'];
+    $smallPhotoPath = $data['smallPhotoPath'];
+    $largePhotoPath = $data['largePhotoPath'];
+    $date = $data['date'];
+    $startTime = $data['startTime'];
+    $endTime = $data['endTime'];
+    $eventDescription = $data['eventDescription']; 
+    $price = $data['price'];
+    $organizer = $data['organizer'];
+    $venue = $data['venue'];
+    $capacity = $data['capacity'];
+    $attendeesCount = $data['attendeesCount'];
+    
+    $errorList = [];
+
+    if (!$eventName || !$smallPhotoPath || !$largePhotoPath || !$date || !$startTime || !$endTime || 
+    !$eventDescription || !$price || !$organizer || !$venue || !$capacity || !$attendeesCount) {
+        $errorList []= "Please fill in all";
+      }
+    if ($errorList) { // STATE 2: errors
+    $valuesList = ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
+    'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
+    'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount];
+    return $this->get('view')->render($response, 'admin_addevent.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+    } else { // STATE 3: sucess - add new user to the DB
+        DB::update('event', ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
+        'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
+        'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount], "eventId=%d", $eventId);
+        return $response->withHeader('Location', '/admin/events')->withStatus(302);
+    }
+});
 
 /** DELETE event */
 $app->delete('/admin/events/{eventId}', function ($request, $response, $args) {

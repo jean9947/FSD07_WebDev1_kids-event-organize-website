@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="/style.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway%3A300%2C400%2C500%2C600%2C700%7CBaloo+Chettan%3A300%2C400%2C500%2C600%2C700%7CAmatic+SC%3A300%2C400%2C500%2C600%2C700&subset=latin-ext%2Cgreek%2Cgreek-ext&ver=1.0.0"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Playroom-{% block title %}Submit Form{% endblock %}</title>
+  </head>
+  <body>
+
+    <form method="POST" action="/admin/updateevent" id="form">
+    <h3>Update Event</h3><br />
+        <label id="eventName">Event Name</label><br />
+        <input  type="text" name="eventName" value="{{ v.eventName }}" required /><br /><br />
+        <label id="smallPhotoPath">Small Photo Path</label><br />
+        <input  type="file" name="smallPhotoPath" value="{{ v.smallPhotoPath }}" required /><br /><br />
+        <label id="largePhotoPath">Large Photo Path</label><br />
+        <input  type="file" name="largePhotoPath" value="{{ v.largePhotoPath }}" required /><br /><br />
+        <label id="date">Date</label><br />
+        <input  type="date" name="date" value="{{ v.date }}" required /><br /><br />
+        <label id="startTime">Start Time</label><br />
+        <input  type="time" name="startTime" value="{{ v.startTime }}" required /><br /><br />
+        <label id="endTime">End Time</label><br />
+        <input  type="time" name="endTime" value="{{ v.endTime }}" required /><br /><br />
+        <label id="eventDescription">Event Description</label><br />
+        <input  type="text" name="eventDescription" value="{{ v.eventDescription }}" required /><br /><br />
+        <label id="price">Price</label><br />
+        <input  type="number" min="1" step="any" name="price" value="{{ v.price }}" required /><br /><br />
+        <label id="organizer">Organizer</label><br />
+        <input  type="text" name="organizer" value="{{ v.organizer }}" required /><br /><br />
+        <label id="venue">Venue</label><br />
+        <input  type="text" name="venue" value="{{ v.venue }}" required /><br /><br />
+        <label id="capacity">Capacity</label><br />
+        <input  type="number" name="capacity" value="{{ v.capacity }}" required /><br /><br />
+        <label id="attendeesCount">Attendees Count</label><br />
+        <input  type="number" name="attendeesCount" value="{{ v.attendeesCount }}" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="reset" id="cancelbtn">Cancel</button><br>
+    </form>
+
+    <script>
+    $('#cancelbtn').click(function() {
+        $('#addUser-form-container').empty();
+    });
+    </script>
+
+  </body>
+</html>

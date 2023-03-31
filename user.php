@@ -51,8 +51,7 @@ $app->post('/register', function ($request, $response, $args) {
   $password = $data['password'];
   $phoneNumber = $data['phoneNumber'];
   $email = $data['email'];
-  
-  
+    
   $errorList = [];
   // validate firstname
   if (strlen($firstName) < 2 || strlen($firstName) > 100) {
@@ -75,7 +74,6 @@ $app->post('/register', function ($request, $response, $args) {
           $username = "";
         }
   }
-
   // validate password
   if (
       strlen($password) < 6 || strlen($password) > 100
@@ -84,10 +82,12 @@ $app->post('/register', function ($request, $response, $args) {
       || (preg_match("/[0-9]/", $password) !== 1)
   ) {
       $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
+      $password ="";
   }
   // validate phone
   if (preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", $phoneNumber) !== 1) {
       $errorList[] ="Phone number format is 000-000-0000";
+      $phoneNumber = "";
   }
   // validate email
   if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
@@ -107,7 +107,6 @@ $app->post('/register', function ($request, $response, $args) {
   } else { // STATE 3: sucess - add new user to the DB
       DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
       'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
-      // return $this->get('view')->render($response, 'registered.html.twig');
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
@@ -149,12 +148,62 @@ $app->get('/logout', function ($request, $response, $args) {
   unset($_SESSION['user']);
   session_destroy();
   setFlashMessage("You've been logged out.");
-  return $response
-      ->withHeader('Location', '/')
-      ->withStatus(302);
-  // return $this->get('view')->render($response, 'logout.html.twig');
+  return $response->withHeader('Location', '/')->withStatus(302);
 })->setName('logout');
 
+
+/**Reset Password */
+$app->get('/resetpassword', function ($request, $response, $args) {
+  // validate if the user is logged in already
+  if (!isset($_SESSION['user'])) {
+    return $this->get('view')->render($response, 'resetPassword.html.twig');
+  } else {
+    setFlashMessage("You're already logged in");
+    return $response->withHeader('Location', '/')->withStatus(302);
+  }
+});
+
+$app->post('/resetpassword', function ($request, $response, $args) {
+  $data = $request->getParsedBody();
+  $username = $data['username'];
+  $password1 = $data['password1'];
+  $password2 = $data['password2'];
+  $errorList = [];
+
+  // validate if username is in the db 
+  $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
+  if (!$userRecord['username'] == $username) {
+    $errorList[] = "Username not found";
+    $username = "";
+  }
+  // validate password
+  if (
+      strlen($password1) < 6 || strlen($password1) > 100
+      || (preg_match("/[A-Z]/", $password1) !== 1)
+      || (preg_match("/[a-z]/", $password1) !== 1)
+      || (preg_match("/[0-9]/", $password1) !== 1)
+  ) {
+      $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
+      $password1 = "";
+      $password2 = "";
+  }
+  if (!($password1 == $password2)) {
+      $errorList[] = "Passwords don't match";
+      $password1 = "";
+      $password2 = "";
+  }
+
+  if ($errorList) { // STATE 2: errors
+    $valuesList = ['username' => $username, 'password1' => $password1, 'password2' => $password2];
+    return $this->get('view')->render($response, 'resetPassword.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+  } else { // STATE 3: sucess - reset password and update data to the DB
+      DB::update('users', ['password' => $password2], "username=%s", $username);
+      return $response->withHeader('Location', '/login')->withStatus(302);
+  }
+});
+
+
+/**************************************************************************************** */
 // Get event page
 $app->get('/event', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
