@@ -342,30 +342,26 @@ $app->get('/admin/events', function($request, $response) {
     }
     $userRecord = $_SESSION['user']['username'];
     $isAdmin = ($_SESSION['user']['role'] === 'admin');
-    $events = DB::query("SELECT eventId, eventName, date, price, capacity, attendeesCount FROM events");
+    $events = DB::query("SELECT eventId, eventName, date, startTime, endTime, price, organizer, capacity, attendeesCount FROM events");
     return $this->get('view')->render($response, 'admin_events.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'events' => $events]);
 });
 
 /** UPDATE event */
-$app->get('/admin/updateevent/{eventId}', function ($request, $response, $args) {
-    // Check if user is authenticated
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        setFlashMessage("Admin must log in to edit.");
-        return $response->withHeader('Location', '/login')->withStatus(302);
-    }
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
-  
+$app->get('/admin/events/{eventId}', function ($request, $response, $args) {
     $eventId = $args['eventId'];
     // Get the user record based on the provided id
-    $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%i", $eventId);
+    $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);
     if (!$eventRecord) {
         $response->getBody()->write("Error: event not found");
     }
-    return $this->get('view')->render($response, 'admin_updateevent.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'eventRecord' => $eventRecord]);
+    // if (!$eventRecord && $request->getMethod() == 'GET') {
+    //     error_log("Error: event not found. Event ID: " . $eventId);
+    //     $response->getBody()->write("Error: event not found");
+    // }
+    return $this->get('view')->render($response, 'admin_updateevent.html.twig', ['eventRecord' => $eventRecord]);
 });
 
-$app->post('/admin/updateevent/{eventgId}', function ($request, $response, $args) {
+$app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
     $eventId = $args['eventId'];
     // Get the user record based on the provided id
     $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);

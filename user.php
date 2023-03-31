@@ -198,6 +198,7 @@ $app->post('/resetpassword', function ($request, $response, $args) {
     return $this->get('view')->render($response, 'resetPassword.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - reset password and update data to the DB
       DB::update('users', ['password' => $password2], "username=%s", $username);
+      setFlashMessage("Password reset successfully.");
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });

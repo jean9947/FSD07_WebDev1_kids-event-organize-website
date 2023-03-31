@@ -12,7 +12,10 @@
                 <th><span>eventID</span></th>
                 <th><span>Name</span></th>
                 <th><span>Date</span></th>
+                <th><span>Sart Time</span></th>
+                <th><span>End Time</span></th>
                 <th><span>Price</span></th>
+                <th><span>Organizers</span></th>
                 <th><span>Capacity</span></th>
                 <th><span>Attendees</span></th>
             </tr>
@@ -30,7 +33,16 @@
                     <span>{{ event.date }}</span>
                 </td>
                 <td>
+                    <span>{{ event.startTime }}</span>
+                </td>
+                <td>
+                    <span>{{ event.endTime }}</span>
+                </td>
+                <td>
                     <span>{{ event.price }}</span>
+                </td>
+                <td>
+                    <span>{{ event.organizer }}</span>
                 </td>
                 <td>
                     <span>{{ event.capacity }}</span>
@@ -40,7 +52,9 @@
                 </td>
                 <td>
                     <span id="info">
-                    <a href="#" class="checkEvent"><i class="fa fa-search-plus fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                {#
+                    <a href="#" class="checkEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-search-plus fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                #}
                     <a href="#" class="updateEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
                     <a href="#" class="deleteEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
                     </span>
@@ -68,7 +82,7 @@
         $(".updateEvent").on("click", function() {
             var eventId = $(this).data("id");
             $.ajax({
-                url: "/admin/updateevent/" + eventId,
+                url: "/admin/events/" + eventId,
                 data: {eventId: eventId},
                 success: function(data) {
                     $("#addUser-form-container").html(data); 
