@@ -152,18 +152,78 @@ $app->get('/logout', function ($request, $response, $args) {
 })->setName('logout');
 
 
-/**Reset Password */
-$app->get('/resetpassword', function ($request, $response, $args) {
+/**Password Reset Request */
+$app->get('/passwordresetrequest', function ($request, $response, $args) {
   // validate if the user is logged in already
   if (!isset($_SESSION['user'])) {
-    return $this->get('view')->render($response, 'resetPassword.html.twig');
+    return $this->get('view')->render($response, 'passwordResetRequest.html.twig');
   } else {
     setFlashMessage("You're already logged in");
     return $response->withHeader('Location', '/')->withStatus(302);
   }
 });
 
-$app->post('/resetpassword', function ($request, $response, $args) {
+$app->post('/passwordresetrequest', function ($request, $response, $args) {
+  $data = $request->getParsedBody();
+  $email = $data['email'];
+  $errorList = [];
+
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errorList[] = "Invalid email address format";
+    $emai = "";
+  }
+  // Check if email is registered in the database
+  $user = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
+  if (!$user) {
+    $errorList[] = "Email address not found";
+    $emai = "";
+  }
+  if ($errorList) {
+    $valuesList = ['email' => $email];
+    return $this->get('view')->render($response, 'passwordResetRequest.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+  } else {
+      $token = generateResetPasswordToken($user['userId']);
+
+      // Send reset password email to user
+      $to = $email;
+      $subject = 'Password Reset Request From Playroom';
+      $message = 'Please click on the following link to reset your password: ' . $_SERVER['HTTP_HOST'] . '/passwordreset/' . $token;
+      $headers = 'From: noreply@yourwebsite.com' . "\r\n" .
+                'Reply-To: noreply@yourwebsite.com' . "\r\n" .
+                'X-Mailer: PHP/' . phpversion();
+
+      if (mail($to, $subject, $message, $headers)) {
+        setFlashMessage("Password reset email has been sent to $email");
+      } else {
+        setFlashMessage("Failed to send password reset email");
+      }
+      return $response->withHeader('Location', '/')->withStatus(302);
+    }
+});
+
+function getUserByEmail($email) {
+  $result = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
+  return $result ?: false;
+}
+function generateResetPasswordToken($userId) {
+  $token = bin2hex(random_bytes(32));
+  DB::update('users', array('reset_password_token' => $token), 'userId=%d', $userId);
+  return $token;
+}
+
+
+/**Reset Password */
+$app->get('/passwordreset', function ($request, $response, $args) {
+  // validate if the user is logged in already
+  if (!isset($_SESSION['user'])) {
+    return $this->get('view')->render($response, 'passwordReset.html.twig');
+  } else {
+    setFlashMessage("You're already logged in");
+    return $response->withHeader('Location', '/')->withStatus(302);
+  }
+});
+
+$app->post('/passwordreset', function ($request, $response, $args) {
   $data = $request->getParsedBody();
   $username = $data['username'];
   $password1 = $data['password1'];
@@ -195,10 +255,10 @@ $app->post('/resetpassword', function ($request, $response, $args) {
 
   if ($errorList) { // STATE 2: errors
     $valuesList = ['username' => $username, 'password1' => $password1, 'password2' => $password2];
-    return $this->get('view')->render($response, 'resetPassword.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+    return $this->get('view')->render($response, 'passwordReset.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - reset password and update data to the DB
       DB::update('users', ['password' => $password2], "username=%s", $username);
-      setFlashMessage("Password reset successfully.");
+      setFlashMessage("Password reset successfully");
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
