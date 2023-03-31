@@ -3,6 +3,8 @@
 
 {% block content %}
 
+
+
 <p id="usersmanage">Manage Events<p>
 
 <div id="admin_showall">
@@ -20,92 +22,150 @@
                 <th><span>Attendees</span></th>
             </tr>
         </thead>
-{% for event in events %}
-        <tbody>
-            <tr>
-                <td>
-                    <span>{{ event.eventId }}</span>
-                </td>
-                <td>
-                    <span>{{ event.eventName }}</span>
-                </td>
-                <td>
-                    <span>{{ event.date }}</span>
-                </td>
-                <td>
-                    <span>{{ event.startTime }}</span>
-                </td>
-                <td>
-                    <span>{{ event.endTime }}</span>
-                </td>
-                <td>
-                    <span>{{ event.price }}</span>
-                </td>
-                <td>
-                    <span>{{ event.organizer }}</span>
-                </td>
-                <td>
-                    <span>{{ event.capacity }}</span>
-                </td>
-                <td>
-                    <span>{{ event.attendeesCount }}</span>
-                </td>
-                <td>
-                    <span id="info">
-                {#
-                    <a href="#" class="checkEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-search-plus fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                #}
-                    <a href="#" class="updateEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                    <a href="#" class="deleteEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-{% endfor %}
+    {% for event in events %}
+            <tbody>
+                <tr>
+                    <td>
+                        <span>{{ event.eventId }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.eventName }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.date }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.startTime }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.endTime }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.price }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.organizer }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.capacity }}</span>
+                    </td>
+                    <td>
+                        <span>{{ event.attendeesCount }}</span>
+                    </td>
+                    <td>
+                        <span id="info">
+                    {#
+                        <a href="#" class="checkEvent" data-user-id="{{ event.eventId }}"><i class="fa fa-search-plus fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    #}
+                        <a href="#" class="updateEvent" data-target="#update-modal" data-user-id="{{ event.eventId }}"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                        <a href="#" class="deleteEvent" data-target="#confirm-delete-modal" data-user-id="{{ event.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+    {% endfor %}
+
+    <div class="modal" id="update-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form method="POST" id="form">
+                    <h3>Update Event</h3><br />
+                        <label id="eventName">Event Name</label><br />
+                        <input  type="text" name="eventName" value="{{ v.eventName }}" required /><br /><br />
+                        <label id="smallPhotoPath">Small Photo Path</label><br />
+                        <input  type="file" name="smallPhotoPath" value="{{ v.smallPhotoPath }}" required /><br /><br />
+                        <label id="largePhotoPath">Large Photo Path</label><br />
+                        <input  type="file" name="largePhotoPath" value="{{ v.largePhotoPath }}" required /><br /><br />
+                        <label id="date">Date</label><br />
+                        <input  type="date" name="date" value="{{ v.date }}" required /><br /><br />
+                        <label id="startTime">Start Time</label><br />
+                        <input  type="time" name="startTime" value="{{ v.startTime }}" required /><br /><br />
+                        <label id="endTime">End Time</label><br />
+                        <input  type="time" name="endTime" value="{{ v.endTime }}" required /><br /><br />
+                        <label id="eventDescription">Event Description</label><br />
+                        <input  type="text" name="eventDescription" value="{{ v.eventDescription }}" required /><br /><br />
+                        <label id="price">Price</label><br />
+                        <input  type="number" min="1" step="any" name="price" value="{{ v.price }}" required /><br /><br />
+                        <label id="organizer">Organizer</label><br />
+                        <input  type="text" name="organizer" value="{{ v.organizer }}" required /><br /><br />
+                        <label id="venue">Venue</label><br />
+                        <input  type="text" name="venue" value="{{ v.venue }}" required /><br /><br />
+                        <label id="capacity">Capacity</label><br />
+                        <input  type="number" name="capacity" value="{{ v.capacity }}" required /><br /><br />
+                        <label id="attendeesCount">Attendees Count</label><br />
+                        <input  type="number" name="attendeesCount" value="{{ v.attendeesCount }}" required /><br /><br />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-success" id="confirm-update-button">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="confirm-delete-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h5>Delete this event?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-success" id="confirm-delete-button">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     </table>
-    <br>
-{# 
-    <section class="container text-center">
-        <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%;">ADD EVENT</button>
-    </section>
-#}
-
-    <div id="addUser-form-container">
-    </div>
 
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function(){
-        $(".updateEvent").on("click", function() {
-            var eventId = $(this).data("id");
-            $.ajax({
-                url: "/admin/events/" + eventId,
-                data: {eventId: eventId},
-                success: function(data) {
-                    $("#addUser-form-container").html(data); 
-                }
-            });
-        });
-       $(".deleteEvent").on("click", function(e) {
+        $(".updateEvent").on("click", function(e) {
             e.preventDefault();
-            var eventId = $(this).data("id");
-            if (confirm("Delete this event?")) {
+            var eventId = $(this).data("user-id");
+            var modalId = $(this).data("target");
+            $(modalId).modal("show");
+            $("#confirm-update-button").on("click", function() { 
+                $(modalId).modal("hide"); 
                 $.ajax({
-                    type: "DELETE",
+                    type: "POST",
                     url: "/admin/events/" + eventId,
                     data: {eventId: eventId},
                     success: function() {
-                        // reload the page after successful deletion
                         window.location.reload(); 
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error(errorThrown);
                     }
                 });
-            }
+            });
+        });
+        $(".deleteEvent").on("click", function(e) {
+            e.preventDefault();
+            var eventId = $(this).data("id");
+            var modalId = $(this).data("target");
+            $(modalId).modal("show");
+            $("#confirm-delete-button").on("click", function() { 
+                $(modalId).modal("hide"); 
+                $.ajax({
+                    type: "DELETE",
+                    url: "/admin/events/" + eventId,
+                    data: {eventId: eventId},
+                    success: function() {
+                        window.location.reload(); 
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error(errorThrown);
+                    }
+                });
+            });
         });
     });
 </script>

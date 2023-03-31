@@ -163,7 +163,7 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
     // Get the user record based on the provided id
     $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE userId=%i", $userId);
     if (!$userRecord) {
-        $response->getBody()->write("Error: user not found");
+        $response->getBody()->write("Error: user id not found");
     }
 
     $data = $request->getParsedBody();
@@ -218,6 +218,7 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
     } else { // STATE 3: sucess - update the user from the database
     DB::update('users', ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
     'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email], "userId=%i", $userId);
+    setFlashMessage("UserID " . $userId . " updated");
     return $response->withHeader('Location', '/admin/users')->withStatus(302);
     }
 });
@@ -307,7 +308,7 @@ $app->post('/admin/updatebooking/{bookingId}', function ($request, $response, $a
     // Get the user record based on the provided id
     $bookingRecord = DB::queryFirstRow("SELECT * FROM bookings WHERE bookingId=%i", $bookingId);
     if (!$bookingRecord) {
-        $response->getBody()->write("Error: booking not found");
+        $response->getBody()->write("Error: booking id not found");
     }
 
     $data = $request->getParsedBody();
@@ -325,6 +326,7 @@ $app->post('/admin/updatebooking/{bookingId}', function ($request, $response, $a
     return $this->get('view')->render($response, 'admin_updatebooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - add new user to the DB
         DB::update('bookings', ['eventId' => $eventId, 'userId' => $userId, 'childId' => $childId], "bookingId=%i", $bookingId);
+        setFlashMessage("BookingID " . $bookingId . " updated");
         return $response->withHeader('Location', '/admin/bookings')->withStatus(302);
     }
 });
@@ -348,17 +350,20 @@ $app->get('/admin/events', function($request, $response) {
 
 /** UPDATE event */
 $app->get('/admin/events/{eventId}', function ($request, $response, $args) {
+    // Check if user is authenticated
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        setFlashMessage("Admin must log in to edit.");
+        return $response->withHeader('Location', '/login')->withStatus(302);
+    }
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
     $eventId = $args['eventId'];
     // Get the user record based on the provided id
     $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);
     if (!$eventRecord) {
         $response->getBody()->write("Error: event not found");
     }
-    // if (!$eventRecord && $request->getMethod() == 'GET') {
-    //     error_log("Error: event not found. Event ID: " . $eventId);
-    //     $response->getBody()->write("Error: event not found");
-    // }
-    return $this->get('view')->render($response, 'admin_updateevent.html.twig', ['eventRecord' => $eventRecord]);
+    return $this->get('view')->render($response, 'admin_updateevent.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'eventRecord' => $eventRecord]);
 });
 
 $app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
@@ -366,7 +371,7 @@ $app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
     // Get the user record based on the provided id
     $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);
     if (!$eventRecord) {
-        $response->getBody()->write("Error: event not found");
+        $response->getBody()->write("Error: event id not found");
     }
 
     $data = $request->getParsedBody();
@@ -398,13 +403,14 @@ $app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
         DB::update('event', ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
         'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
         'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount], "eventId=%d", $eventId);
+        setFlashMessage("EventID " . $eventId . " updated");
         return $response->withHeader('Location', '/admin/events')->withStatus(302);
     }
 });
 
 /** DELETE event */
 $app->delete('/admin/events/{eventId}', function ($request, $response, $args) {
-    $bookingId = $args['eventId'];
-    DB::delete('events', 'eventId=%d', $bookingId);
+    $eventId = $args['eventId'];
+    DB::delete('events', 'eventId=%d', $eventId);
     return $this->get('view')->render($response, 'admin_events.html.twig');
 });

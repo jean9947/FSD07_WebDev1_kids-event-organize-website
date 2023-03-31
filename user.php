@@ -166,24 +166,31 @@ $app->get('/passwordresetrequest', function ($request, $response, $args) {
 $app->post('/passwordresetrequest', function ($request, $response, $args) {
   $data = $request->getParsedBody();
   $email = $data['email'];
+  $email2 = $data['email2'];
   $errorList = [];
 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $errorList[] = "Invalid email address format";
     $emai = "";
+    $emai2 = "";
   }
   // Check if email is registered in the database
   $user = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
   if (!$user) {
     $errorList[] = "Email address not found";
     $emai = "";
+    $emai2 = "";
+  }
+  if ($email !== $email2) {
+    $errorList[] = "Email address mismatch";
+    $emai = "";
+    $emai2 = "";
   }
   if ($errorList) {
-    $valuesList = ['email' => $email];
+    $valuesList = ['email' => $email, 'email2' => $email2];
     return $this->get('view')->render($response, 'passwordResetRequest.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else {
-      $token = generateResetPasswordToken($user['userId']);
-
+      // $token = generateResetPasswordToken($user['userId']);
       // Send reset password email to user
       $to = $email;
       $subject = 'Password Reset Request From Playroom';
@@ -201,15 +208,11 @@ $app->post('/passwordresetrequest', function ($request, $response, $args) {
     }
 });
 
-function getUserByEmail($email) {
-  $result = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
-  return $result ?: false;
-}
-function generateResetPasswordToken($userId) {
-  $token = bin2hex(random_bytes(32));
-  DB::update('users', array('reset_password_token' => $token), 'userId=%d', $userId);
-  return $token;
-}
+// function generateResetPasswordToken($userId) {
+//   $token = bin2hex(random_bytes(32));
+//   DB::update('users', array('reset_password_token' => $token), 'userId=%d', $userId);
+//   return $token;
+// }
 
 
 /**Reset Password */

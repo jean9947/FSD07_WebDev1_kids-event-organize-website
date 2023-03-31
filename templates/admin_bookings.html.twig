@@ -39,12 +39,26 @@
                 <td>
                     <span id="info">
                     <a href="/updatebooking/{{ booking.bookingId }}" class="updateBooking"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                    <a href="#" class="deleteBooking" data-id="{{ booking.bookingId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    <a href="#" class="deleteBooking" data-target="#confirm-delete-modal" data-id="{{ booking.bookingId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
                     </span>
                 </td>
             </tr>
         </tbody>
 {% endfor %}
+
+<div class="modal" id="confirm-delete-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5>Delete this booking?</h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-success" id="confirm-delete-button">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     </table>
     <br>
@@ -58,6 +72,7 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function(){
         $("#btnAddUser").click(function() {
@@ -88,20 +103,22 @@
         $(".deleteBooking").on("click", function(e) {
             e.preventDefault();
             var bookingId = $(this).data("id");
-            if (confirm("Delete this booking?")) {
+            var modalId = $(this).data("target");
+            $(modalId).modal("show");
+            $("#confirm-delete-button").on("click", function() { 
+                $(modalId).modal("hide");
                 $.ajax({
                     type: "DELETE",
                     url: "/admin/bookings/" + bookingId,
                     data: {bookingId: bookingId},
                     success: function() {
-                        // reload the page after successful deletion
                         window.location.reload(); 
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error(errorThrown);
                     }
                 });
-            }
+            });
         });
     });
 </script>
