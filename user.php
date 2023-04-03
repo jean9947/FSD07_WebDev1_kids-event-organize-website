@@ -508,7 +508,7 @@ $app->post('/checkout', function ($request, $response, $args) use ($twig) {    \
       'cancel_url' => 'http://playroom.org/mybookings',
   ]);
 
-  $response->getBody()->write($twig->render('checkout.html.twig', [
+  $response->getBody()->write($twig->render('checkout1.html.twig', [
     'sessionId' => $checkout_session->id
 ]));
 
