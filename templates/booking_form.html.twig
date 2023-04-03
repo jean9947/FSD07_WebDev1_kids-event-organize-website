@@ -1,30 +1,94 @@
 <html>
   <head>
-    <link rel="stylesheet" href="/style.css"/>
+    <link rel="stylesheet" href="/styles.css"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway%3A300%2C400%2C500%2C600%2C700%7CBaloo+Chettan%3A300%2C400%2C500%2C600%2C700%7CAmatic+SC%3A300%2C400%2C500%2C600%2C700&subset=latin-ext%2Cgreek%2Cgreek-ext&ver=1.0.0"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+      $(document).ready(function() {
+        var firstNameValid = false;
+        var lastNameValid = false;
+        var ageValid = false;
+
+        $('input[name=firstName]').keyup(function() {
+          var firstName = $(this).val();
+          if (firstName.length < 2 || firstName.length > 100) {
+            $('#firstNameLengthError').text('First name must be between 2 and 100 characters');
+            firstNameValid = false;
+          } else {
+            $('#firstNameLengthError').text('');
+            firstNameValid = true;
+          }
+          checkAllInputsValid();
+        });
+
+        $('input[name=lastName]').keyup(function() {
+          var lastName = $(this).val();
+          if (lastName.length < 2 || lastName.length > 100) {
+            $('#lastNameLengthError').text('Last name must be between 2 and 100 characters');
+            lastNameValid = false;
+          } else {
+            $('#lastNameLengthError').text('');
+            lastNameValid = true;
+          }
+          checkAllInputsValid();
+        });
+
+        $('input[name=birthday]').blur(function() {
+          var birthday = $(this).val();
+          var age = calculateAge(birthday);
+          if (age < 2 || age > 12) {
+            $('#ageError').text('Our events are only suitable for 2 - 12 years old children.');
+            ageValid = false;
+          } else if (new Date(birthday) > new Date()) {
+            $('#ageError').text('Birthday cannot be in the future.');
+            ageValid = false;
+          } else {
+            $('#ageError').text('');
+            ageValid = true;
+          }
+          checkAllInputsValid();
+        });
+
+        function calculateAge(birthdate) {
+          var now = new Date();
+          var birth = new Date(birthdate);
+          var diff = now.getTime() - birth.getTime();
+          var ageDate = new Date(diff);
+          return Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        function checkAllInputsValid() {
+          if (firstNameValid && lastNameValid && ageValid) {
+            $('#submit-btn').removeClass('disabled');
+          } else {
+            $('#submit-btn').addClass('disabled');
+          }
+        }
+      });
+    </script>
+    <style>
+    button.disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    </style>
     <title>Playroom-{% block title %}Submit Form{% endblock %}</title>
   </head>
   <body>
-    {# <div>
-          {% if errorList %}
-            <ul>
-            {% for error in errorList %}
-                <li>{{ error }}</li>
-            {% endfor %}
-            </ul>
-          {% endif %}
-        </div> #}
     <div class="container text-center" id="bookingform">
     {% if session.user is not empty %}
-      <form id="book-event-form" action="/booking-form" method="post">
+    
+      <form id="book-event-form" action="/checkout" method="post">
         <h4 id="h4" style="padding-top:3%">Choose the Event</h4>
         <select id="eventName" name="eventId"style="width:268px">
           {% for event in events %}
-            <option value="{{ event.eventId }}">{{ event.eventName }}</option>
+            {% if event.capacity > 0 %}
+            <option value="{{ event.eventId }}">{{ event.eventName }} - {{ event.capacity}} left</option>
+            {% endif %}
           {% endfor %}
         </select><br>
         <h4 id="h4" style="padding-top:4%">Kid's Information</h4>
@@ -35,11 +99,14 @@
         <label for="girl">Girl</label><br>
         <label for="firstName">First Name:</label><br>
         <input type="text" id="firstName" name="firstName"><br>
+        <span id="firstNameLengthError" style="display: block; color:red"></span>       
         <label for="lastName">Last Name:</label><br>
-        <input type="text" id="lastName" name="lastName"><br>        
+        <input type="text" id="lastName" name="lastName"><br>
+        <span id="lastNameLengthError" style="display: block; color:red"></span>        
         <label for="birthday">Birthday:</label><br>
         <input type="date" id="birthday" name="birthday" style="width:268px"><br>
-        <button type="submit">Submit</button>
+        <span id="ageError" style="display: block; color:red"></span>
+        <button type="submit" id="submit-btn" class="disabled">Book</button>
         <button type="reset" id="cancelbtn">Cancel</button><br>
       </form>
     {% else %}

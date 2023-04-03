@@ -31,6 +31,19 @@ $app->get('/register', function ($request, $response, $args) {
   return $this->get('view')->render($response, 'register.html.twig',['session' => ['user' => $userData]]);
 });
 
+// // *Check if username is taken using AJAX*
+// $app->post('/checkUsername', function ($request, $response, $args) {
+//   $username = $request->getParam('username');
+//   $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
+
+//   if ($result) {
+//       $response->getBody()->write(json_encode(array('taken' => true)));
+//   } else {
+//       $response->getBody()->write(json_encode(array('taken' => false)));
+//   }
+//   return $response->withHeader('Content-Type', 'application/json');
+// });
+
 // SATE 2&3: receiving a submission
 $app->post('/register', function ($request, $response, $args) {
   // $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
@@ -119,31 +132,22 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
   $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
 
-  if (!$userRecord) {
-    $errorList[] = "Invalid username";
-    $username = "";
-  }
-
-  if (!($userRecord['password'] == $password)) {
-    $errorList[] = "Wrong password";
-    $password = "";
-  }
-
-  if ($errorList) { // STATE 2: errors
-    $valuesList = ['usernamed' => $username, 'password' => $password];
-    return $this->get('view')->render($response, 'login.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
-  } 
   if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
-    unset($userRecord['password']);
-    $_SESSION['user'] = $userRecord;
-    setFlashMessage("Welcome back admin " . $userRecord['username']);
-    return $response->withHeader('Location', '/admin')->withStatus(302);
+      unset($userRecord['password']);
+      $_SESSION['user'] = $userRecord;
+      // if ($errorList) { // STATE 2: errors
+      // $valuesList = ['usernamed' => $username, 'password' => $password];
+      // return $this->get('view')->render($response, 'admin_updatebooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+      setFlashMessage("Welcome back admin " . $userRecord['username']);
+      return $response->withHeader('Location', '/admin')->withStatus(302);
   } elseif ($loginSuccessful) { // logged in as a customer
-    unset($userRecord['password']);
-    $_SESSION['user'] = $userRecord;
-    setFlashMessage("Welcome back " . $userRecord['username']);
-    return $response->withHeader('Location', '/')->withStatus(302);
-  } 
+      unset($userRecord['password']);
+      $_SESSION['user'] = $userRecord;
+      return $response->withHeader('Location', '/')->withStatus(302);
+  } else {
+      $response->getBody()->write("Invalid username or password");
+      return $response;
+  }
 });
 
 
@@ -289,7 +293,7 @@ $app->post('/passwordreset/{token}', function ($request, $response, $args) {
 $app->get('/event', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   // Fetch all events from the database
-  $events = DB::query('SELECT * FROM events');
+  $events = DB::query('SELECT * FROM events WHERE DATE(date) > CURDATE()');
   foreach ($events as &$event) {
     $startTime = new DateTime($event['startTime']);
     $event['startTime'] = $startTime->format('g:i A');
@@ -371,18 +375,13 @@ $app->post('/booking-form', function ($request, $response, $args) {
   }
 
   $age = date_diff(date_create($birthday), date_create('now'))->y;
-  if ($age < 2) {
-    $errorList []= "Your child must be over 2 years old";
+  if ($age < 2 || $age > 12) {
+    $errorList []= "Your child must between 2-12 years old";
     $birthday = "";
-  }
+  } 
 
-  if ($errorList) {
-    $valuesList = ['firstName' => $KfirstName, 
-                    'lastName' => $KlastName, 
-                    'birthday' => $birthday, 
-                  ];
-    return $this->get('view')->render($response, 'eventinformation.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
-  } else {
+  if (empty($errorList)) {
+    DB::query("UPDATE events SET capacity = capacity - 1, attendeesCount = attendeesCount + 1 WHERE eventId = %i", $eventId);
     DB::insert('children', [
       'userId' => $userId,
       'firstName' => $KfirstName,
@@ -396,15 +395,20 @@ $app->post('/booking-form', function ($request, $response, $args) {
       'userId' => $userId,
       'childId' => $childId
     ]);
-    return $response->withHeader('Location', '/mybookings')->withStatus(302);
+    $bookingId = DB::queryFirstField("SELECT LAST_INSERT_ID() FROM bookings");
+    $price = DB::query("SELECT price FROM events WHERE eventId = %i", $eventId);
+    $priceValue = (float) $price[0]['price'];
+     return $this->get('view')->render($response, 'checkout.html.twig', ['eventId' =>
+  $eventId, 'bookingId' => $bookingId, 'price' => $priceValue]); 
   }
 });
 
+// list mybookings page
 $app->get('/mybookings', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
   // Fetch bookings only for the logged-in user from the database
-  $bookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId
+  $bookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
     FROM bookings AS b
     JOIN children AS c ON b.childId = c.childId
     JOIN users AS u ON b.userId = u.userId
@@ -414,13 +418,102 @@ $app->get('/mybookings', function ($request, $response, $args) {
   return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
 });
 
-/** DELETE mybooking */
-$app->delete('/mybookings/{bookingId}', function ($request, $response, $args) {
-  $bookingId = $args['bookingId'];
-  DB::delete('bookings', 'bookingId=%d', $bookingId);
-  return $this->get('view')->render($response, 'mybookings.html.twig');
+//edit mybookings
+$app->post('/mybookings', function ($request, $response, $args) {  
+  $data = $request->getParsedBody();
+  $KfirstName = $data['firstName'];
+  $KlastName =  $data['lastName'];
+  $birthday = $data['birthday'];
+  $gender = $data['gender'];
+  $bookingId = $data['bookingId'];
+  $errorList = [];
+
+  // $bookingId = $args['bookingId'];
+  $childId = DB::queryFirstField("SELECT childId FROM bookings WHERE bookingId = %d", $bookingId);
+  // echo $bookingId,$childId;
+
+  // $userId = $_SESSION['user']['userId'];
+
+  if (strlen($KfirstName) < 2 || strlen($KfirstName) > 100) {
+    $errorList []= "First name must be 2-100 characters long";
+    $KfirstName = "";
+  }
+  
+  if (strlen($KlastName) < 2 || strlen($KlastName) > 100) {
+    $errorList []= "Last name must be 2-100 characters long";
+    $KlastName = "";
+  }
+
+  $age = date_diff(date_create($birthday), date_create('now'))->y;
+  if ($age < 2 || $age > 12) {
+    $errorList []= "Your child must between 2-12 years old";
+    $birthday = "";
+  } 
+
+  if (empty($errorList)) {
+    DB::update('children', [
+      'firstName' => $KfirstName,
+      'lastName' => $KlastName,
+      'DOB' => $birthday,
+      'gender' => $gender
+    ], 'childId=%d', $childId);
+    return $this->get('view')->render($response, 'mybookings.html.twig');
+  }
 });
 
+// DELETE mybooking
+$app->delete('/mybookings/{bookingId}', function ($request, $response, $args) {
+  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+  $bookingId = $args['bookingId'];
+  DB::delete('bookings', 'bookingId=%d', $bookingId);
+  return $this->get('view')->render($response, 'mybookings.html.twig', ['session' => ['user' => $userData]]);
+});
+
+
+$app->get('/check-firstname-length', function ($request, $response, $args) {
+  return $this->view->render($response, 'booking_form.html.twig');
+});
+
+$app->get('/check-lastname-length', function ($request, $response, $args) {
+  return $this->view->render($response, 'booking_form.html.twig');
+});
+
+$app->get('/check-children-age', function ($request, $response, $args) {
+  return $this->view->render($response, 'booking_form.html.twig');
+});
+
+$app->get('/edit-booking', function ($request, $response, $args) {
+  return $this->view->render($response, 'mybookings.html.twig');
+});
+
+//post payment
+$app->post('/checkout', function ($request, $response, $args) use ($twig) {    \Stripe\Stripe::setApiKey('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
+  $eventId = $request->getParsedBody()['eventId'];
+  $event = DB::queryFirstRow("SELECT * FROM events WHERE eventId = %i", $eventId);
+  $checkout_session = \Stripe\Checkout\Session::create([
+      'payment_method_types' => ['card'],
+      'line_items' => [[
+        'price_data' => [
+          'currency' => 'cad',
+          'unit_amount' => $event['price']*100,
+          'product_data' => [
+            'name' => $event['eventName'],
+            'description' => $event['eventDescription'],
+          ],
+        ],
+        'quantity' => 1,
+      ]],
+      'mode' => 'payment',
+      'success_url' => 'http://playroom.org/mybookings',
+      'cancel_url' => 'http://playroom.org/mybookings',
+  ]);
+
+  $response->getBody()->write($twig->render('checkout.html.twig', [
+    'sessionId' => $checkout_session->id
+]));
+
+return $response;
+});
 
 
 /**************************************************************************************** */
