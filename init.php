@@ -11,6 +11,7 @@ use \Slim\Routing\RouteContext;
 use Slim\Middleware\FlashMiddleware;
 use Slim\Flash\Messages;
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 
