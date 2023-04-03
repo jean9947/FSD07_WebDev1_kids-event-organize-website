@@ -13,11 +13,16 @@ use Slim\Flash\Messages;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 
 require __DIR__ . '/vendor/autoload.php';
 
 session_start();
+
+$loader = new FilesystemLoader('./templates');
+$twig = new Environment($loader);
 
 // TODO: Add logger here
 use Monolog\Logger;
