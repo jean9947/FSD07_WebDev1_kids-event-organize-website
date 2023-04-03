@@ -31,19 +31,6 @@ $app->get('/register', function ($request, $response, $args) {
   return $this->get('view')->render($response, 'register.html.twig',['session' => ['user' => $userData]]);
 });
 
-// // *Check if username is taken using AJAX*
-// $app->post('/checkUsername', function ($request, $response, $args) {
-//   $username = $request->getParam('username');
-//   $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
-
-//   if ($result) {
-//       $response->getBody()->write(json_encode(array('taken' => true)));
-//   } else {
-//       $response->getBody()->write(json_encode(array('taken' => false)));
-//   }
-//   return $response->withHeader('Content-Type', 'application/json');
-// });
-
 // SATE 2&3: receiving a submission
 $app->post('/register', function ($request, $response, $args) {
   // $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
@@ -132,22 +119,31 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
   $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
 
-  if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
-      unset($userRecord['password']);
-      $_SESSION['user'] = $userRecord;
-      // if ($errorList) { // STATE 2: errors
-      // $valuesList = ['usernamed' => $username, 'password' => $password];
-      // return $this->get('view')->render($response, 'admin_updatebooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
-      setFlashMessage("Welcome back admin " . $userRecord['username']);
-      return $response->withHeader('Location', '/admin')->withStatus(302);
-  } elseif ($loginSuccessful) { // logged in as a customer
-      unset($userRecord['password']);
-      $_SESSION['user'] = $userRecord;
-      return $response->withHeader('Location', '/')->withStatus(302);
-  } else {
-      $response->getBody()->write("Invalid username or password");
-      return $response;
+  if (!$userRecord) {
+    $errorList[] = "Invalid username";
+    $username = "";
   }
+
+  if (!($userRecord['password'] == $password)) {
+    $errorList[] = "Wrong password";
+    $password = "";
+  }
+
+  if ($errorList) { // STATE 2: errors
+    $valuesList = ['usernamed' => $username, 'password' => $password];
+    return $this->get('view')->render($response, 'login.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+  } 
+  if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
+    unset($userRecord['password']);
+    $_SESSION['user'] = $userRecord;
+    setFlashMessage("Welcome back admin " . $userRecord['username']);
+    return $response->withHeader('Location', '/admin')->withStatus(302);
+  } elseif ($loginSuccessful) { // logged in as a customer
+    unset($userRecord['password']);
+    $_SESSION['user'] = $userRecord;
+    setFlashMessage("Welcome back " . $userRecord['username']);
+    return $response->withHeader('Location', '/')->withStatus(302);
+  } 
 });
 
 
