@@ -607,8 +607,8 @@ p,
 
 /********** ChihYin **********/
 #form {
-  margin: 3% 30%;
-  padding: 3% 3%;
+  margin: 2% 20%;
+  padding: 2% 2%;
   border-radius: 10px;
   text-align: center;
   background-color: #f6e3db;
@@ -616,10 +616,20 @@ p,
 }
 
 #admin_showall {
-  padding: 20px 10px;
+  padding: 15px 10px;
   font-family: "Baloo Chettan", cursive;
   text-align: center;
-  background-color: #c3e1db;
+}
+
+#tbList tbody:nth-child(even) {
+	background-color: #c7dcd8;
+}
+/* #tbList tbody:nth-child(even) {
+	background-color: #f6e3db;
+} */
+
+#tbList tbody > tr:hover {
+  background-color: #f6e3db;
 }
 
 #usersmanage {

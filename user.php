@@ -9,7 +9,10 @@ use Slim\Views\TwigMiddleware;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Middleware\FlashMiddleware;
 use Slim\Flash\Messages;
-
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+// use Slim\Routing\RouteCollectorProxy;
 
 require_once 'init.php';
 
@@ -28,18 +31,18 @@ $app->get('/register', function ($request, $response, $args) {
   return $this->get('view')->render($response, 'register.html.twig',['session' => ['user' => $userData]]);
 });
 
-// *Check if username is taken using AJAX*
-$app->post('/checkUsername', function ($request, $response, $args) {
-  $username = $request->getParam('username');
-  $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
+// // *Check if username is taken using AJAX*
+// $app->post('/checkUsername', function ($request, $response, $args) {
+//   $username = $request->getParam('username');
+//   $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
 
-  if ($result) {
-      $response->getBody()->write(json_encode(array('taken' => true)));
-  } else {
-      $response->getBody()->write(json_encode(array('taken' => false)));
-  }
-  return $response->withHeader('Content-Type', 'application/json');
-});
+//   if ($result) {
+//       $response->getBody()->write(json_encode(array('taken' => true)));
+//   } else {
+//       $response->getBody()->write(json_encode(array('taken' => false)));
+//   }
+//   return $response->withHeader('Content-Type', 'application/json');
+// });
 
 // SATE 2&3: receiving a submission
 $app->post('/register', function ($request, $response, $args) {
@@ -74,7 +77,7 @@ $app->post('/register', function ($request, $response, $args) {
           $username = "";
         }
   }
-  // validate password
+  // validate password, password_hash()
   if (
       strlen($password) < 6 || strlen($password) > 100
       || (preg_match("/[A-Z]/", $password) !== 1)
@@ -84,6 +87,7 @@ $app->post('/register', function ($request, $response, $args) {
       $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
       $password ="";
   }
+  $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
   // validate phone
   if (preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", $phoneNumber) !== 1) {
       $errorList[] ="Phone number format is 000-000-0000";
@@ -95,7 +99,6 @@ $app->post('/register', function ($request, $response, $args) {
       $email = "";
   }
 
-
   if ($errorList) { // STATE 2: errors
       $valuesList = ['firstName' => $firstName, 
                       'lastName' => $lastName, 
@@ -106,7 +109,7 @@ $app->post('/register', function ($request, $response, $args) {
       return $this->get('view')->render($response, 'register.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - add new user to the DB
       DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-      'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
+      'password' => $hashedPassword, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
@@ -124,6 +127,7 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   $data = $request->getParsedBody();
   $username = $data['username'];
   $password = $data['password'];
+  $errorList = [];
 
   $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
   $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
@@ -131,6 +135,10 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   if ($loginSuccessful && $userRecord['role'] == "admin") { // logged in as Admin
       unset($userRecord['password']);
       $_SESSION['user'] = $userRecord;
+      // if ($errorList) { // STATE 2: errors
+      // $valuesList = ['usernamed' => $username, 'password' => $password];
+      // return $this->get('view')->render($response, 'admin_updatebooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+      setFlashMessage("Welcome back admin " . $userRecord['username']);
       return $response->withHeader('Location', '/admin')->withStatus(302);
   } elseif ($loginSuccessful) { // logged in as a customer
       unset($userRecord['password']);
@@ -190,54 +198,67 @@ $app->post('/passwordresetrequest', function ($request, $response, $args) {
     $valuesList = ['email' => $email, 'email2' => $email2];
     return $this->get('view')->render($response, 'passwordResetRequest.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else {
-      // $token = generateResetPasswordToken($user['userId']);
-      // Send reset password email to user
-      $to = $email;
-      $subject = 'Password Reset Request From Playroom';
-      $message = 'Please click on the following link to reset your password: ' . $_SERVER['HTTP_HOST'] . '/passwordreset/' . $token;
-      $headers = 'From: noreply@yourwebsite.com' . "\r\n" .
-                'Reply-To: noreply@yourwebsite.com' . "\r\n" .
-                'X-Mailer: PHP/' . phpversion();
-
-      if (mail($to, $subject, $message, $headers)) {
-        setFlashMessage("Password reset email has been sent to $email");
+    $token = bin2hex(random_bytes(32));
+    try {
+      $mail = new PHPMailer(true);
+      $mail->isSMTP(); 
+      // $mail->Host       = 'smtp.gmail.com'; 
+      // $mail->SMTPAuth   = true;
+      // $mail->Username   = 'playroomfsd07@gmail.com'; 
+      // $mail->Password   = 'Playroom@fsd07'; 
+      // $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
+      // $mail->Port       = 587; 
+      $mail->Host = 'smtp.mailtrap.io';
+      $mail->SMTPAuth = true;
+      $mail->Port = 587;
+      $mail->Username = '9d148a19b6e434';
+      $mail->Password = 'a2667148ccd6e6';
+      $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+      $mail->setFrom('info@mailtrap.io', 'Mailtrap');
+      $mail->addAddress($email); 
+      $mail->isHTML(true);
+      $mail->Subject = 'Password Reset Request From Playroom';
+      $mail->Body    = 'Please click on the following link to reset your password: ' . 'http://' . $_SERVER['HTTP_HOST'] . '/passwordreset/' . $token;
+      if (!$mail->send()) {
+          setFlashMessage("Failed to send password reset email: " . $mail->ErrorInfo);
       } else {
-        setFlashMessage("Failed to send password reset email");
+          DB::update('users', ['token' => $token], "email=%s", $email);
+          setFlashMessage("Password reset email has been sent to $email");
       }
-      return $response->withHeader('Location', '/')->withStatus(302);
+    } catch (Exception $e) {
+        setFlashMessage("Failed to send password reset email");
     }
+    return $response->withHeader('Location', '/')->withStatus(302);
+   }
 });
-
-// function generateResetPasswordToken($userId) {
-//   $token = bin2hex(random_bytes(32));
-//   DB::update('users', array('reset_password_token' => $token), 'userId=%d', $userId);
-//   return $token;
-// }
 
 
 /**Reset Password */
-$app->get('/passwordreset', function ($request, $response, $args) {
-  // validate if the user is logged in already
-  if (!isset($_SESSION['user'])) {
-    return $this->get('view')->render($response, 'passwordReset.html.twig');
+$app->get('/passwordreset/{token}', function ($request, $response, $args) {
+  $token = $args['token'];
+  $user = DB::queryFirstRow("SELECT * FROM users WHERE token=%s", $token);
+  if (!$user) {
+    setFlashMessage("Invalid password reset link");
+    return $response->withHeader('Location', '/passwordresetrequest')->withStatus(302);
   } else {
-    setFlashMessage("You're already logged in");
-    return $response->withHeader('Location', '/')->withStatus(302);
+    return $this->get('view')->render($response, 'passwordReset.html.twig', ['token' => $token]);
   }
 });
 
-$app->post('/passwordreset', function ($request, $response, $args) {
+$app->post('/passwordreset/{token}', function ($request, $response, $args) {
+  $token = $args['token'];
   $data = $request->getParsedBody();
-  $username = $data['username'];
+  $email = $data['email'];
   $password1 = $data['password1'];
   $password2 = $data['password2'];
   $errorList = [];
 
-  // validate if username is in the db 
-  $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
-  if (!$userRecord['username'] == $username) {
-    $errorList[] = "Username not found";
-    $username = "";
+  // Check if email is registered in the database
+  $user = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
+  if (!$user) {
+    $errorList[] = "Email address not found";
+    $emai = "";
+    $emai2 = "";
   }
   // validate password
   if (
@@ -255,12 +276,12 @@ $app->post('/passwordreset', function ($request, $response, $args) {
       $password1 = "";
       $password2 = "";
   }
-
+  $hashedPassword = password_hash($password2, PASSWORD_DEFAULT);
   if ($errorList) { // STATE 2: errors
-    $valuesList = ['username' => $username, 'password1' => $password1, 'password2' => $password2];
+    $valuesList = ['email' => $email, 'password1' => $password1, 'password2' => $password2];
     return $this->get('view')->render($response, 'passwordReset.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - reset password and update data to the DB
-      DB::update('users', ['password' => $password2], "username=%s", $username);
+      DB::update('users', ['password' => $hashedPassword], "email=%s", $email);
       setFlashMessage("Password reset successfully");
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
@@ -405,4 +426,74 @@ $app->delete('/mybookings/{bookingId}', function ($request, $response, $args) {
 });
 
 
-// $app->run();
+
+/**************************************************************************************** */
+/**Payment */
+
+$app->get('/checkout', function ($request, $response, $args) {
+  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+  return $this->get('view')->render($response, 'checkout.html.twig',['session' => ['user' => $userData]]);
+});
+
+// $app->post('/checkout', function ($request, $response, $args) {
+//   $amount = $_POST['amount'];
+//   $currency = $_POST['currency'];
+//   $description = $_POST['description'];
+//   $stripeToken = $_POST['stripeToken'];
+
+//   // Set the API key
+//   Stripe::setApiKey(STRIPE_SECRET_KEY);
+
+//   // Create the charge
+//   try {
+//       $charge = Charge::create([
+//           'amount' => $amount,
+//           'currency' => $currency,
+//           'description' => $description,
+//           'source' => $stripeToken,
+//       ]);
+//   } catch (\Exception $e) {
+//       setFlashMessage('Error: ' . $e->getMessage());
+//       return $response->withHeader('Location', $request->getUri()->getPath())->withStatus(302);
+//   }
+
+//   setFlashMessage('Charge successful! Charge ID: ' . $charge->id);
+//   return $response->withHeader('Location', $request->getUri()->getPath())->withStatus(302);
+// });
+
+
+// // $app->run();
+
+
+
+
+
+// try {
+//   // Create a new Stripe Checkout session
+//   $session = Session::create([
+//       'payment_method_types' => ['card'],
+//       'line_items' => [
+//           [
+//               'price_data' => [
+//                   'currency' => 'usd',
+//                   'unit_amount' => $params['amount'] * 100, // amount in cents
+//                   'product_data' => [
+//                       'name' => 'My Product',
+//                   ],
+//               ],
+//               'quantity' => 1,
+//           ],
+//       ],
+//       'mode' => 'payment',
+//       'success_url' => 'https://example.com/success',
+//       'cancel_url' => 'https://example.com/cancel',
+//   ]);
+
+//   // Redirect the user to the Stripe Checkout page
+//   $response->getBody()->write(json_encode(['sessionId' => $session->id]));
+//   return $response->withHeader('Content-Type', 'application/json');
+// } catch (ApiErrorException $e) {
+//   // Handle Stripe API errors
+//   $response->getBody()->write($e->getMessage());
+//   return $response->withStatus(500);
+// }

@@ -1,11 +1,11 @@
 {% extends "admin.html.twig" %}
-{% block title %} - Bookings{% endblock %}
+{% block title %} - Children{% endblock %}
 
 {% block content %}
 
-<p id="usersmanage">Manage Bookings<p>
+<p id="usersmanage">Manage Children<p>
 <section class="container text-center">
-    <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:2%; font-size:1.2rem;">ADD BOOKING</button>
+    <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:2%;">ADD CHILD</button>
 </section>
 <div id="addUser-form-container">
 </div> 
@@ -14,37 +14,39 @@
     <table class="table user-list" id="tbList">
         <thead>
             <tr>
-                <th><span>Booking ID</span></th>
-                <th><span>Event ID</span></th>
-                <th><span>User ID</span></th>
                 <th><span>Child ID</span></th>
-                <th><span>Booked Time</span></th>
-
-
+                <th><span>User(Parent) ID</span></th>
+                <th><span>First Name</span></th>
+                <th><span>Last Name</span></th>
+                <th><span>Date of Birth</span></th>
+                <th><span>Gender</span></th>
             </tr>
         </thead>
-{% for booking in bookings %}
+{% for children in children %}
         <tbody>
             <tr>
                 <td>
-                    <span>{{ booking.bookingId }}</span>
+                    <span>{{ children.childId }}</span>
                 </td>
                 <td>
-                    <span>{{ booking.eventId }}</span>
+                    <span>{{ children.userId }}</span>
                 </td>
                 <td>
-                    <span>{{ booking.userId }}</span>
+                    <span>{{ children.firstName }}</span>
                 </td>
                 <td>
-                    <span>{{ booking.childId }}</span>
+                    <span>{{ children.lastName }}</span>
                 </td>
                 <td>
-                    <span>{{ booking.bookingTimeStamp }}</span>
+                    <span>{{ children.DOB }}</span>
+                </td>
+                <td>
+                    <span>{{ children.gender }}</span>
                 </td>
                 <td>
                     <span id="info">
-                    <a href="/updatebooking/{{ booking.bookingId }}" class="updateBooking"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
-                    <a href="#" class="deleteBooking" data-target="#confirm-delete-modal" data-id="{{ booking.bookingId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
+                    <a href="/updatechild/{{ children.childId }}" class="updateChild"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                    <a href="#" class="deleteChild" data-target="#confirm-delete-modal" data-id="{{ booking.bookingId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
                     </span>
                 </td>
             </tr>
@@ -55,7 +57,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <h5>Delete this booking?</h5>
+                <h5>Delete this child info?</h5>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
@@ -75,7 +77,7 @@
         $("#btnAddUser").click(function() {
             $(this).hide();
             $.ajax({
-            url: "/admin/addbooking",
+            url: "/admin/addchild",
             success: function(data) {
                 $("#addUser-form-container").html(data);
             }
@@ -97,17 +99,17 @@
                 }
             });
         });
-        $(".deleteBooking").on("click", function(e) {
+        $(".deleteChild").on("click", function(e) {
             e.preventDefault();
-            var bookingId = $(this).data("id");
+            var childId = $(this).data("id");
             var modalId = $(this).data("target");
             $(modalId).modal("show");
             $("#confirm-delete-button").on("click", function() { 
                 $(modalId).modal("hide");
                 $.ajax({
                     type: "DELETE",
-                    url: "/admin/bookings/" + bookingId,
-                    data: {bookingId: bookingId},
+                    url: "/admin/children/" + childId,
+                    data: {childId: childId},
                     success: function() {
                         window.location.reload(); 
                     },

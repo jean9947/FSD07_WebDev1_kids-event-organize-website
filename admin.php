@@ -9,6 +9,8 @@ use Slim\Views\TwigMiddleware;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Middleware\FlashMiddleware;
 use Slim\Flash\Messages;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 
 require_once 'init.php';
@@ -348,6 +350,51 @@ $app->get('/admin/events', function($request, $response) {
     return $this->get('view')->render($response, 'admin_events.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'events' => $events]);
 });
 
+/** ADD event */
+$app->get('/admin/addevent', function ($request, $response, $args) {
+    $events = DB::query("SELECT * FROM events");
+    $html = $this->get('view')->fetch('admin_addevent.html.twig', ['events' => $events]);
+    $response->getBody()->write($html);
+    return $response->withHeader('Content-Type', 'text/html');
+});
+
+$app->post('/admin/addevent', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $eventName = $data['eventName'];
+    $smallPhotoPath = $data['smallPhotoPath'];
+    $largePhotoPath = $data['largePhotoPath'];
+    $date = $data['date'];
+    $startTime = $data['startTime'];
+    $endTime = $data['endTime'];
+    $eventDescription = $data['eventDescription']; 
+    $price = $data['price'];
+    $organizer = $data['organizer'];
+    $venue = $data['venue'];
+    $capacity = $data['capacity'];
+    $attendeesCount = $data['attendeesCount'];
+    
+    $errorList = [];
+
+    if(isset($_SESSION['user'])) {
+       if (!$eventName || !$smallPhotoPath || !$largePhotoPath || !$date || !$startTime || !$endTime || 
+        !$eventDescription || !$price || !$organizer || !$venue || !$capacity || !$attendeesCount) {
+            $errorList []= "Please fill in all";
+        }
+        if ($errorList) { // STATE 2: errors
+        $valuesList = ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
+        'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
+        'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount];
+        } else { // STATE 3: sucess - add new event to the DB
+            DB::insert('event', ['eventId' => NULL, 'eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
+            'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
+            'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount], "eventId=%d", $eventId);
+            return $response->withHeader('Location', '/admin/events')->withStatus(302);
+        } 
+    } else {
+        return $response->withHeader('Location', '/login')->withStatus(302);
+      } 
+});
+
 /** UPDATE event */
 $app->get('/admin/events/{eventId}', function ($request, $response, $args) {
     // Check if user is authenticated
@@ -363,7 +410,7 @@ $app->get('/admin/events/{eventId}', function ($request, $response, $args) {
     if (!$eventRecord) {
         $response->getBody()->write("Error: event not found");
     }
-    return $this->get('view')->render($response, 'admin_updateevent.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'eventRecord' => $eventRecord]);
+    return $this->get('view')->render($response, 'admin_events.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'eventRecord' => $eventRecord]);
 });
 
 $app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
@@ -398,7 +445,7 @@ $app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
     $valuesList = ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
     'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
     'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount];
-    return $this->get('view')->render($response, 'admin_addevent.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+    return $this->get('view')->render($response, 'admin_events.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - add new user to the DB
         DB::update('event', ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
         'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
@@ -413,4 +460,37 @@ $app->delete('/admin/events/{eventId}', function ($request, $response, $args) {
     $eventId = $args['eventId'];
     DB::delete('events', 'eventId=%d', $eventId);
     return $this->get('view')->render($response, 'admin_events.html.twig');
+});
+
+
+/************************************** Events ************************************************** */
+
+/** VIEW all children */
+$app->get('/admin/children', function($request, $response) {
+    // Check if user is authenticated
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        setFlashMessage("Admin must log in to edit.");
+        return $response->withHeader('Location', '/login')->withStatus(302);
+    }
+    $userRecord = $_SESSION['user']['username'];
+    $isAdmin = ($_SESSION['user']['role'] === 'admin');
+    $children = DB::query("SELECT childId, userId, firstName, lastName, DOB, gender FROM children");
+    return $this->get('view')->render($response, 'admin_children.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'children' => $children]);
+});
+
+/** ADD child */
+$app->get('/admin/addchild', function ($request, $response, $args) {
+    $children = DB::query("SELECT * FROM children");
+    $html = $this->get('view')->fetch('admin_addchild.html.twig', ['children' => $children]);
+    $response->getBody()->write($html);
+    return $response->withHeader('Content-Type', 'text/html');
+});
+
+
+
+/** DELETE child */
+$app->delete('/admin/children/{childId}', function ($request, $response, $args) {
+    $childId = $args['childId'];
+    DB::delete('children', 'childId=%d', $childId);
+    return $this->get('view')->render($response, 'admin_children.html.twig');
 });

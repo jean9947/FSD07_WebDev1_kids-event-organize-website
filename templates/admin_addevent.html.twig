@@ -22,12 +22,29 @@
 
     <form method="POST" action="/admin/addevent" id="form">
     <h3>Add Event</h3><br />
-        <label id="eventId">Event ID</label><br />
-        <input  type="text" name="eventId" value="{{ v.eventId }}" required /><br /><br />
-        <label id="userId">User ID</label><br />
-        <input  type="text" name="userId" value="{{ v.userId }}" required /><br /><br />
-        <label id="childId">Child ID</label><br />
-        <input  type="text" name="childId" value="{{ v.childId }}" required /><br /><br />
+        <label id="eventName">Event Name</label><br />
+        <input  type="text" name="eventName" value="{{ v.eventName }}" required /><br /><br />
+        <label id="smallPhotoPath">Small Photo Path</label><br />
+        <input  type="file" name="smallPhotoPath" value="{{ v.smallPhotoPath }}" required /><br /><br />
+        <label id="largePhotoPath">Large Photo Path</label><br />
+        <input  type="file" name="largePhotoPath" value="{{ v.largePhotoPath }}" required /><br /><br />
+        <label id="date">Date</label><br />
+        <input  type="date" name="date" value="{{ v.date }}" required /><br /><br />
+        <label id="startTime">Start Time</label><br />
+        <input  type="time" name="startTime" value="{{ v.startTime }}" required /><br /><br />
+        <label id="endTime">End Time</label><br />
+        <input  type="time" name="endTime" value="{{ v.endTime }}" required /><br /><br />
+        <label id="eventDescription">Event Description</label><br />
+        <input  type="text" name="eventDescription" value="{{ v.eventDescription }}" required /><br /><br />
+        <label id="price">Price</label><br />
+        <input  type="number" min="1" step="any" name="price" value="{{ v.price }}" required /><br /><br />
+        <label id="organizer">Organizer</label><br />
+        <input  type="text" name="organizer" value="{{ v.organizer }}" required /><br /><br />
+        <label id="venue">Venue</label><br />
+        <input  type="text" name="venue" value="{{ v.venue }}" required /><br /><br />
+        <label id="capacity">Capacity</label><br />
+        <input  type="number" name="capacity" value="{{ v.capacity }}" required /><br /><br />
+        <label id="attendeesCount">Attendees Count</label><br />
         <button type="submit">Add</button>
         <button type="reset" id="cancelbtn">Cancel</button><br>
     </form>

@@ -4,9 +4,14 @@
 {% block content %}
 
 <p id="usersmanage">Manage Users<p>
+<section class="container text-center">
+    <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:2%">ADD USER</button>
+</section>
+<div id="addUser-form-container">
+</div>  
 
 <div id="admin_showall">
-    <table class="table user-list">
+    <table class="table user-list" id="tbList">
         <thead>
             <tr>
                 <th><span>userID</span></th>
@@ -19,7 +24,7 @@
                 <th><span>Email</span></th>
             </tr>
         </thead>
-{% for user in users %}
+    {% for user in users %}
         <tbody>
             <tr>
                 <td>
@@ -54,31 +59,23 @@
                 </td>
             </tr>
         </tbody>
-{% endfor %}
 
-<div class="modal" id="confirm-delete-modal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body">
-                <h5>Delete this user?</h5>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-outline-success" id="confirm-delete-button">Confirm</button>
+    {% endfor %}
+
+    <div class="modal" id="confirm-delete-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h5>Delete this user?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-success" id="confirm-delete-button">Confirm</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
     </table>
-    <br>
-    <section class="container text-center">
-        <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%">ADD USER</button>
-    </section>
-
-    <div id="addUser-form-container">
-    </div>
-
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

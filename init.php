@@ -10,6 +10,8 @@ use Slim\Exception\HttpNotFoundException;
 use \Slim\Routing\RouteContext;
 use Slim\Middleware\FlashMiddleware;
 use Slim\Flash\Messages;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 
 require __DIR__ . '/vendor/autoload.php';
@@ -105,3 +107,4 @@ function getAndClearFlashMessage() {
     }
     return "";
 }
+

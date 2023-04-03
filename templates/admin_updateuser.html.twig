@@ -29,7 +29,22 @@
     <input type="email" name="email" value="{{ v.email }}" required /><br /><br />
     <label id="role">Role</label><br />
     <input  type="text" name="role" placeholder="admin or parent" value="{{ v.role }}" required /><br /><br />
-    <input type="submit" id="submit" value="Save">
+    <button type="submit">Save</button>
+    <button type="reset" id="cancelbtn">Cancel</button><br>
 </form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#cancelbtn').click(function() {
+        $.ajax({
+            url: "/admin/users",
+            success: function() {
+            window.location.href = "/admin/users";
+            }
+        });
+    });
+});
+</script>
 
 {% endblock content %}

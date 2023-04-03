@@ -29,13 +29,13 @@
 
         <p id="usersmanage">Manage Admins</p>
         <section class="container text-center">
-                <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:7%">ADD ADMIN</button>
-            </section>
-            <div id="addUser-form-container">
-            </div>  
+            <button id="btnAddUser" class="btnAddUser" style="margin-top:0%; margin-bottom:2%">ADD ADMIN</button>
+        </section>
+        <div id="addUser-form-container">
+        </div>  
 
         <div id="admin_showall">      
-            <table class="table user-list">
+            <table class="table user-list" id="tbList">
                 <thead>
                     <tr>
                         <th><span>userID</span></th>
@@ -89,7 +89,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <h5>Delete this user?</h5>
+                        <h5>Delete this admin?</h5>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
@@ -100,7 +100,6 @@
         </div>
 
             </table>
-            <br>
         </div>
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
