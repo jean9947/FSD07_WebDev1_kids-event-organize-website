@@ -393,7 +393,7 @@ $app->post('/booking-form', function ($request, $response, $args) {
 
   $age = date_diff(date_create($birthday), date_create('now'))->y;
   if ($age < 2 || $age > 12) {
-    $errorList []= "您的孩子必须在2-12岁之间";
+    $errorList []= "Your child must between 2-12 years old";
     $birthday = "";
   } 
 
