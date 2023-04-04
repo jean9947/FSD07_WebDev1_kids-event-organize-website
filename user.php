@@ -14,8 +14,14 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 use Stripe\Stripe;
 use Stripe\Charge;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+use \Stripe\Event;
 
 require_once 'init.php';
+
+$loader = new FilesystemLoader('./templates');
+$twig = new Environment($loader);
 
 /** Homepage */
 // Get home page
@@ -384,7 +390,7 @@ $app->post('/booking-form', function ($request, $response, $args) {
   
   $errorList = [];
 
-  
+  // echo $data['firstName'];
   $userId = $_SESSION['user']['userId'];
 
   if (strlen($KfirstName) < 2 || strlen($KfirstName) > 100) {
@@ -393,13 +399,13 @@ $app->post('/booking-form', function ($request, $response, $args) {
   }
   
   if (strlen($KlastName) < 2 || strlen($KlastName) > 100) {
-    $errorList []= "Last name must be 2-100 characters long";
+    $errorList []= "last name must be 2-100 characters long";
     $KlastName = "";
   }
 
   $age = date_diff(date_create($birthday), date_create('now'))->y;
   if ($age < 2 || $age > 12) {
-    $errorList []= "Your child must between 2-12 years old";
+    $errorList []= "您的孩子必须在2-12岁之间";
     $birthday = "";
   } 
 
@@ -420,10 +426,77 @@ $app->post('/booking-form', function ($request, $response, $args) {
     ]);
     $bookingId = DB::queryFirstField("SELECT LAST_INSERT_ID() FROM bookings");
     $price = DB::query("SELECT price FROM events WHERE eventId = %i", $eventId);
+    $eventName = DB::query("SELECT eventName FROM events WHERE eventId = %i", $eventId);
     $priceValue = (float) $price[0]['price'];
-    return $this->get('view')->render($response, 'checkout1.html.twig', ['eventId' =>
-    $eventId, 'bookingId' => $bookingId, 'price' => $priceValue]);
+    $thisEventName = $eventName[0]['eventName'];
+
+    $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
+    $session = $stripe->checkout->sessions->create([
+      'payment_method_types' => ['card'],
+      'line_items' => [[
+        'price_data' => [
+          'currency' => 'cad',
+          'unit_amount' => $priceValue * 100,
+          'product_data' => [
+            'name' => $thisEventName.' ticket',
+          ],
+        ],
+        'quantity' => 1,
+      ]],
+      'mode' => 'payment',
+      'success_url' => 'http://playroom.org/stripe-webhook',
+      'cancel_url' => 'http://playroom.org/stripe-webhook',
+      'client_reference_id' => $bookingId,
+    ]);
+
+    $url = $session->url;
+    return $response->withHeader('Location', $url)->withStatus(302);
   }
+});
+
+$app->post('/stripe-webhook', function ($request, $response, $args) {
+  $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
+  $payload = $request->getBody()->getContents();
+  $signature = $request->getHeaderLine('Stripe-Signature');
+  $event = null;
+  try {
+      $event = Event::constructFrom(
+          json_decode($payload, true),
+          $signature,
+          'we_1Mt0bBFIad2TXYCqyXuJX0qt'
+      );
+  } catch(\UnexpectedValueException $e) {
+      //$log->error('Invalid payload', ['exception' => $e]);
+      return $response->withStatus(400);
+  } catch(\Stripe\Exception\SignatureVerificationException $e) {
+      //$log->error('Invalid signature', ['exception' => $e]);
+      return $response->withStatus(400);
+  }
+  // $payload = json_encode([
+  //   'type' => $event->type,
+  //   'data' => $event->data,
+  //   'created' => time()
+  // ]);
+
+  // Handle the Stripe webhook event based on its type
+  switch ($event->type) {
+      case 'payment_intent.succeeded':
+          // Update the corresponding booking status in the bookings table
+          $bookingId = $event->data->object->client_reference_id;
+          DB::query("UPDATE bookings SET status = 'paid' WHERE bookingId = %i", $bookingId);
+          break;
+      case 'payment_intent.failed':
+          // Update the corresponding booking status in the bookings table
+          $bookingId = $event->data->object->client_reference_id;
+          DB::query("UPDATE bookings SET status = 'failed' WHERE bookingId = %i", $bookingId);
+          break;
+      default:
+          // Handle other event types
+          break;
+  }
+
+  // Return a success response to Stripe
+  return $response->withHeader('Location', "/mybookings")->withStatus(200);
 });
 
 /**************************************************************************************** */
