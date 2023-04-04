@@ -82,7 +82,7 @@
     <div class="container text-center" id="bookingform">
     {% if session.user is not empty %}
     
-      <form id="book-event-form" action="/checkout" method="post">
+      <form id="book-event-form" action="/booking-form" method="post">
         <h4 id="h4" style="padding-top:3%">Choose the Event</h4>
         <select id="eventName" name="eventId"style="width:268px">
           {% for event in events %}
