@@ -94,12 +94,9 @@ $app->post('/register', function ($request, $response, $args) {
   }
 
   if ($errorList) { // STATE 2: errors
-      $valuesList = ['firstName' => $firstName, 
-                      'lastName' => $lastName, 
-                      'username' => $username, 
-                      'password' => $password, 
-                      'phoneNumber' => $phoneNumber, 
-                      'email' => $email,];
+      $valuesList = ['firstName' => $firstName, 'lastName' => $lastName, 'username' => $username, 
+                      'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email,];
+      $log->info("Registration form submitted with errors", ['errors' => $errorList, 'values' => $valuesList]);
       return $this->get('view')->render($response, 'register.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - add new user to the DB
       global $passwordPepper;
@@ -107,6 +104,7 @@ $app->post('/register', function ($request, $response, $args) {
       $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
       DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
       'password' => $hashedPassword, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
+      $log->info("New user registered", ['username' => $username]);
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
