@@ -387,7 +387,7 @@ $app->post('/admin/addevent', function ($request, $response, $args) {
         } else { // STATE 3: sucess - add new event to the DB
             DB::insert('event', ['eventId' => NULL, 'eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
             'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
-            'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount], "eventId=%d", $eventId);
+            'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount]);
             return $response->withHeader('Location', '/admin/events')->withStatus(302);
         } 
     } else {
@@ -460,37 +460,4 @@ $app->delete('/admin/events/{eventId}', function ($request, $response, $args) {
     $eventId = $args['eventId'];
     DB::delete('events', 'eventId=%d', $eventId);
     return $this->get('view')->render($response, 'admin_events.html.twig');
-});
-
-
-/************************************** Events ************************************************** */
-
-/** VIEW all children */
-$app->get('/admin/children', function($request, $response) {
-    // Check if user is authenticated
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        setFlashMessage("Admin must log in to edit.");
-        return $response->withHeader('Location', '/login')->withStatus(302);
-    }
-    $userRecord = $_SESSION['user']['username'];
-    $isAdmin = ($_SESSION['user']['role'] === 'admin');
-    $children = DB::query("SELECT childId, userId, firstName, lastName, DOB, gender FROM children");
-    return $this->get('view')->render($response, 'admin_children.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'children' => $children]);
-});
-
-/** ADD child */
-$app->get('/admin/addchild', function ($request, $response, $args) {
-    $children = DB::query("SELECT * FROM children");
-    $html = $this->get('view')->fetch('admin_addchild.html.twig', ['children' => $children]);
-    $response->getBody()->write($html);
-    return $response->withHeader('Content-Type', 'text/html');
-});
-
-
-
-/** DELETE child */
-$app->delete('/admin/children/{childId}', function ($request, $response, $args) {
-    $childId = $args['childId'];
-    DB::delete('children', 'childId=%d', $childId);
-    return $this->get('view')->render($response, 'admin_children.html.twig');
 });

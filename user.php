@@ -109,6 +109,9 @@ $app->post('/register', function ($request, $response, $args) {
                       'email' => $email,];
       return $this->get('view')->render($response, 'register.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - add new user to the DB
+      global $passwordPepper;
+      $passwordPepper = hash_hmac('sha256', $password, $passwordPepper);
+      $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
       DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
       'password' => $hashedPassword, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
       return $response->withHeader('Location', '/login')->withStatus(302);
@@ -131,16 +134,23 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   $errorList = [];
 
   $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
-  $loginSuccessful = ($userRecord != null) && ($userRecord['password'] == $password);
+    $loginSuccessful = false;
+    if ($userRecord) {
+        global $passwordPepper;
+        $pwdPeppered = hash_hmac("sha256", $password, $passwordPepper);
+        $pwdHashed = $userRecord['password'];
+        if (password_verify($pwdPeppered, $pwdHashed)) {
+            $loginSuccessful = true;
+            $errorList[] = "Wrong password";
+            $password = "";
+        } else if ($userRecord['password'] == $password) {
+            $loginSuccessful = true;
+        }
+  }
 
   if (!$userRecord) {
     $errorList[] = "Invalid username";
     $username = "";
-  }
-
-  if (!($userRecord['password'] == $password)) {
-    $errorList[] = "Wrong password";
-    $password = "";
   }
 
   if ($errorList) { // STATE 2: errors
@@ -183,6 +193,7 @@ $app->get('/passwordresetrequest', function ($request, $response, $args) {
 });
 
 $app->post('/passwordresetrequest', function ($request, $response, $args) {
+  ob_start();
   $data = $request->getParsedBody();
   $email = $data['email'];
   $email2 = $data['email2'];
@@ -190,20 +201,20 @@ $app->post('/passwordresetrequest', function ($request, $response, $args) {
 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $errorList[] = "Invalid email address format";
-    $emai = "";
-    $emai2 = "";
+    $email = "";
+    $email2 = "";
   }
   // Check if email is registered in the database
   $user = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
   if (!$user) {
     $errorList[] = "Email address not found";
-    $emai = "";
-    $emai2 = "";
+    $email = "";
+    $email2 = "";
   }
   if ($email !== $email2) {
     $errorList[] = "Email address mismatch";
-    $emai = "";
-    $emai2 = "";
+    $email = "";
+    $email2 = "";
   }
   if ($errorList) {
     $valuesList = ['email' => $email, 'email2' => $email2];
@@ -252,7 +263,7 @@ $app->get('/passwordreset/{token}', function ($request, $response, $args) {
     setFlashMessage("Invalid password reset link");
     return $response->withHeader('Location', '/passwordresetrequest')->withStatus(302);
   } else {
-    return $this->get('view')->render($response, 'passwordReset.html.twig', ['token' => $token]);
+    return $this->get('view')->render($response, 'passwordReset.html.twig', ['token' => $token, 'user' => $user]);
   }
 });
 
@@ -266,10 +277,9 @@ $app->post('/passwordreset/{token}', function ($request, $response, $args) {
 
   // Check if email is registered in the database
   $user = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
-  if (!$user) {
+  if (!$user['email']) {
     $errorList[] = "Email address not found";
-    $emai = "";
-    $emai2 = "";
+    $email = "";
   }
   // validate password
   if (
@@ -287,11 +297,13 @@ $app->post('/passwordreset/{token}', function ($request, $response, $args) {
       $password1 = "";
       $password2 = "";
   }
-  $hashedPassword = password_hash($password2, PASSWORD_DEFAULT);
   if ($errorList) { // STATE 2: errors
     $valuesList = ['email' => $email, 'password1' => $password1, 'password2' => $password2];
     return $this->get('view')->render($response, 'passwordReset.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - reset password and update data to the DB
+      global $passwordPepper;
+      $passwordPepper = hash_hmac('sha256', $password1, $passwordPepper);
+      $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
       DB::update('users', ['password' => $hashedPassword], "email=%s", $email);
       setFlashMessage("Password reset successfully");
       return $response->withHeader('Location', '/login')->withStatus(302);
@@ -407,53 +419,16 @@ $app->post('/booking-form', function ($request, $response, $args) {
       'childId' => $childId
     ]);
     $bookingId = DB::queryFirstField("SELECT LAST_INSERT_ID() FROM bookings");
-    // $price = DB::query("SELECT price FROM events WHERE eventId = %i", $eventId);
-    // $priceValue = (float) $price[0]['price'];
-    // return $this->get('view')->render($response, 'checkout1.html.twig', ['eventId' =>
-    // $eventId, 'bookingId' => $bookingId, 'price' => $priceValue]);
-
-    return $response->withRedirect('/checkout/' . $bookingId);
+    $price = DB::query("SELECT price FROM events WHERE eventId = %i", $eventId);
+    $priceValue = (float) $price[0]['price'];
+    return $this->get('view')->render($response, 'checkout1.html.twig', ['eventId' =>
+    $eventId, 'bookingId' => $bookingId, 'price' => $priceValue]);
   }
 });
 
 /**************************************************************************************** */
 /**Payment */
-$app->get('/checkout/{bookingId}', function ($request, $response, $args) {
-  $bookingId = $args['bookingId'];
-  $event = DB::queryFirstRow("SELECT * FROM events as e, bookings as b WHERE e.eventId=b.eventId AND b.bookingId=%s", $bookingId);
-  if (!$event) {
-      $response->getBody()->write("Error: booking not found");
-      return $response->withStatus(404);
-  }
-  return $this->get('view')->render($response, 'checkout.html.twig', ['bookingId' => $bookingId, 'event' => $event]);
-});
 
-$app->post('/checkout', function ($request, $response, $args) {
-  $data = $request->getParsedBody();
-  $amount = $_POST['amount'];
-  $token = $_POST['token'];
-
-  // Set the API key
-  Stripe::setApiKey('sk_test_51MspVWEoZgTgZU3qbPZcUTQexNV6PytoQO5CbcBBEmgMdspHj1BwHt4DPJeQhdixD9VcrFHro1YhhnOJxmFU8yIn00ls8PoaAK');
-
-  // Create the charge
-  try {
-    $charge = Charge::create([
-        'amount' => $amount,
-        'currency' => 'CAD',
-        'source' => $token,
-    ]);
-    // Store flash message in session
-    setFlashMessage("Charge successful! Charge ID: " . $charge->id);
-    // $_SESSION['flash_message'] = 'Charge successful! Charge ID: ' . $charge->id;
-    return $response->withHeader('Location', '/mybookings')->withStatus(302);
-
-  } catch (\Exception $e) {
-    setFlashMessage('Error: ' . $e->getMessage());
-    // $_SESSION['flash_message'] = 'Error: ' . $e->getMessage();
-    return $response->withHeader('Location', '/checkout')->withStatus(302);
-  }
-});
 
 /**************************************************************************************** */
 
