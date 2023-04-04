@@ -587,6 +587,12 @@ $app->post('/mybookings', function ($request, $response, $args) {
 $app->delete('/mybookings/{bookingId}', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   $bookingId = $args['bookingId'];
+  $booking = DB::queryFirstRow("SELECT * FROM bookings WHERE bookingId=%d", $bookingId);
+  $eventId = $booking['eventId'];
+  $event = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);
+  $capacity = $event['capacity'];
+  $attendeesCount = $event['attendeesCount'];
+  DB::update('events', ['capacity' => $capacity + 1, 'attendeesCount' => $attendeesCount - 1], "eventId = %d", $eventId);
   DB::delete('bookings', 'bookingId=%d', $bookingId);
   return $this->get('view')->render($response, 'mybookings.html.twig', ['session' => ['user' => $userData]]);
 });
