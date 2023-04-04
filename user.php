@@ -495,7 +495,7 @@ $app->get('/mybookings', function ($request, $response, $args) {
   $payload = @file_get_contents('php://input');
   $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
   $endpoint_secret = 'whsec_O44UTeta6dfgwwpqxEeihQdVVEJFY3vg';
-//   var_dump($_SERVER);
+  var_dump($_SERVER);
   $event = null;
   try {
       $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
