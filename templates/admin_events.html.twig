@@ -91,17 +91,17 @@
                         <label id="endTime">End Time</label><br />
                         <input  type="time" name="endTime" placeholder="{{ eventRecord.endTime }}" value="{{ v.endTime }}" required /><br /><br />
                         <label id="eventDescription">Event Description</label><br />
-                        <input  type="textbox" name="eventDescription" value="{{ v.eventDescription }}" required /><br /><br />
+                        <input  type="textbox" name="eventDescription" placeholder="{{ eventRecord.eventDescription }}" value="{{ v.eventDescription }}" required /><br /><br />
                         <label id="price">Price</label><br />
-                        <input  type="number" min="1" step="any" name="price" value="{{ v.price }}" required /><br /><br />
+                        <input  type="number" min="1" step="any" name="price" placeholder="{{ eventRecord.price }}" value="{{ v.price }}" required /><br /><br />
                         <label id="organizer">Organizer</label><br />
-                        <input  type="text" name="organizer" value="{{ v.organizer }}" required /><br /><br />
+                        <input  type="text" name="organizer" placeholder="{{ eventRecord.organizer }}" value="{{ v.organizer }}" required /><br /><br />
                         <label id="venue">Venue</label><br />
-                        <input  type="text" name="venue" value="{{ v.venue }}" required /><br /><br />
+                        <input  type="text" name="venue" placeholder="{{ eventRecord.venue }}" value="{{ v.venue }}" required /><br /><br />
                         <label id="capacity">Capacity</label><br />
-                        <input  type="number" name="capacity" value="{{ v.capacity }}" required /><br /><br />
+                        <input  type="number" name="capacity" placeholder="{{ eventRecord.capacity }}" value="{{ v.capacity }}" required /><br /><br />
                         <label id="attendeesCount">Attendees Count</label><br />
-                        <input  type="number" name="attendeesCount" value="{{ v.attendeesCount }}" required /><br /><br />
+                        <input  type="number" name="attendeesCount" placeholder="{{ eventRecord.attendeesCount }}" value="{{ v.attendeesCount }}" required /><br /><br />
                     </form>
                 </div>
                 <div class="modal-footer">
