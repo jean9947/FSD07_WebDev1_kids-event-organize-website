@@ -509,12 +509,14 @@ $app->get('/mybookings', function ($request, $response, $args) {
       exit();
   }
 
+  $bookingId = DB::queryFirstField("SELECT LAST_INSERT_ID() FROM bookings");
+
   if ($event->type == 'payment_intent.success') {
       // Update the bookings table to set status as paid
-      DB::query("UPDATE bookings SET status = 'paid' WHERE userId = %d", $userId);
+      DB::update('bookings', ['status' => "paid"], "bookingId = %d", $bookingId);
   } else {
       // Update the bookings table to set status as failed
-      DB::query("UPDATE bookings SET status = 'failed' WHERE userId = %d", $userId);
+      DB::update('bookings', ['status' => "failed"], "bookingId = %d", $bookingId);
   }
 
   // Fetch only the bookings with status as paid from the database
