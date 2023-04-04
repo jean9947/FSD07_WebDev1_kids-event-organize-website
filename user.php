@@ -140,17 +140,18 @@ $app->post('/login', function (Request $request, Response $response, $args) {
   $errorList = [];
 
   $userRecord = DB::queryFirstRow("SELECT * FROM users WHERE username=%s", $username);
-    $loginSuccessful = false;
+  $loginSuccessful = false;
     if ($userRecord) {
         global $passwordPepper;
         $pwdPeppered = hash_hmac("sha256", $password, $passwordPepper);
         $pwdHashed = $userRecord['password'];
         if (password_verify($pwdPeppered, $pwdHashed)) {
             $loginSuccessful = true;
-            $errorList[] = "Wrong password";
-            $password = "";
         } else if ($userRecord['password'] == $password) {
             $loginSuccessful = true;
+        } else {
+          $errorList[] = "Wrong password";
+          $password = "";
         }
   }
 
