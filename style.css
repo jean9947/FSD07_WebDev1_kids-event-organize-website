@@ -558,7 +558,7 @@ p,
   background-color: rgb(248, 234, 226);
   margin: 1%;
   margin-top: 4%;
-  width: 55%;
+  width: 48%;
   height: 40%;
   border-width: 3px;
   border-color: rgb(250, 115, 43);
@@ -601,6 +601,11 @@ p,
   font-weight: 300;
   font-size: 20px;
   text-decoration: none;
+}
+
+button.disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 /********** END **********/
@@ -736,3 +741,9 @@ p,
   text-decoration: none;
 }
 /********** END **********/
+
+#myModalLabel {
+  font-family: "Baloo Chettan", cursive;
+  font-weight: 200;
+  color: #444;
+}
