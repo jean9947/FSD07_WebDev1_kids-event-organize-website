@@ -489,8 +489,8 @@ $app->get('/mybookings', function ($request, $response, $args) {
   return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
 });
 
-//edit mybookings
 $app->post('/mybookings', function ($request, $response, $args) {  
+  
   $data = $request->getParsedBody();
   $KfirstName = $data['firstName'];
   $KlastName =  $data['lastName'];
@@ -498,23 +498,29 @@ $app->post('/mybookings', function ($request, $response, $args) {
   $gender = $data['gender'];
   $bookingId = $data['bookingId'];
   $errorList = [];
+
   // $bookingId = $args['bookingId'];
   $childId = DB::queryFirstField("SELECT childId FROM bookings WHERE bookingId = %d", $bookingId);
   // echo $bookingId,$childId;
+
   // $userId = $_SESSION['user']['userId'];
+
   if (strlen($KfirstName) < 2 || strlen($KfirstName) > 100) {
     $errorList []= "First name must be 2-100 characters long";
     $KfirstName = "";
   }
+  
   if (strlen($KlastName) < 2 || strlen($KlastName) > 100) {
     $errorList []= "Last name must be 2-100 characters long";
     $KlastName = "";
   }
+
   $age = date_diff(date_create($birthday), date_create('now'))->y;
   if ($age < 2 || $age > 12) {
     $errorList []= "Your child must between 2-12 years old";
     $birthday = "";
   } 
+
   if (empty($errorList)) {
     DB::update('children', [
       'firstName' => $KfirstName,
@@ -526,14 +532,13 @@ $app->post('/mybookings', function ($request, $response, $args) {
   }
 });
 
-// DELETE mybooking
+/** DELETE mybooking */
 $app->delete('/mybookings/{bookingId}', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   $bookingId = $args['bookingId'];
   DB::delete('bookings', 'bookingId=%d', $bookingId);
   return $this->get('view')->render($response, 'mybookings.html.twig', ['session' => ['user' => $userData]]);
 });
-
 
 $app->get('/check-firstname-length', function ($request, $response, $args) {
   return $this->view->render($response, 'booking_form.html.twig');
