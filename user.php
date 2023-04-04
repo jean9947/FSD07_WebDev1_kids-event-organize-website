@@ -39,7 +39,7 @@ $app->get('/register', function ($request, $response, $args) {
 });
 
 // SATE 2&3: receiving a submission
-$app->post('/register', function ($request, $response, $args) {
+$app->post('/register', function ($request, $response, $args) use ($log) {
   // $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   $data = $request->getParsedBody();
   $firstName = $data['firstName'];
