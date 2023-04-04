@@ -104,6 +104,7 @@ $app->post('/register', function ($request, $response, $args) use ($log) {
       $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
       DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
       'password' => $hashedPassword, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
+      setFlashMessage("Account created. Please log in");
       $log->info("New user registered", ['username' => $username]);
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
@@ -430,6 +431,7 @@ $app->post('/booking-form', function ($request, $response, $args) {
     ]);
 
     $url = $session->url;
+    $_SESSION['flash'] = ['type' => 'success', 'message' => 'Booking created successfully.'];
     return $response->withHeader('Location', $url)->withStatus(302);
   }
 });
@@ -472,7 +474,7 @@ $app->post('/booking-form', function ($request, $response, $args) {
 //   return $response->withHeader('Location', "/mybookings")->withStatus(200);
 // });
 
-list mybookings page
+// list mybookings page
 $app->get('/mybookings', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
