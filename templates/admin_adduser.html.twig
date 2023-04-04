@@ -10,18 +10,15 @@
   </head>
   <body>
 
+    <form method="POST" action="/admin/adduser" id="form">
+    <h3>Add User</h3><br />
     {% if errorList %}
-        <ul>
+        <ul id="errorList">
         {% for error in errorList %}
             <li>{{ error }}</li>
         {% endfor %}
         </ul>
     {% endif %}
-
-
-
-    <form method="POST" action="/admin/adduser" id="form">
-    <h3>Add User</h3><br />
         <label id="firstName">First Name</label><br />
         <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />
         <label id="lastName">Last Name</label><br />
@@ -36,7 +33,8 @@
         <label id="uname">Email</label><br />
         <input type="email" name="email" value="{{ v.email }}" required /><br /><br />
         <label id="role">Role</label><br />
-        <input  type="text" name="role" placeholder="admin or parent" value="{{ v.role }}" required /><br /><br />
+        <input type="radio" name="role" value="admin" {% if v.role == "admin" %} checked {% endif %} required> Admin
+        <input type="radio" name="role" value="parent" {% if v.role == "parent" %} checked {% endif %} required> Parent<br />
         <button type="submit">Add</button>
         <button type="reset" id="cancelbtn">Cancel</button><br>
     </form>

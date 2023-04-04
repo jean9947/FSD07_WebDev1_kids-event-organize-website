@@ -69,10 +69,10 @@
 
     <div class="modal" id="update-modal">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content" style="background-color: #FFF8F8">
                 <div class="modal-body">
                     {% if errorList %}
-                        <ul>
+                        <ul id="errorList">
                         {% for error in errorList %}
                             <li>{{ error }}</li>
                         {% endfor %}

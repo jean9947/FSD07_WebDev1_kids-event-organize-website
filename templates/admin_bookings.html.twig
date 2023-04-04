@@ -19,6 +19,9 @@
                 <th><span>User ID</span></th>
                 <th><span>Child ID</span></th>
                 <th><span>Booked Time</span></th>
+                {#
+                <th><span>Payment Status</span></th>
+                #}
 
 
             </tr>
@@ -41,6 +44,11 @@
                 <td>
                     <span>{{ booking.bookingTimeStamp }}</span>
                 </td>
+                {#
+                <td>
+                    <span>{{ booking.paymentStatus }}</span>
+                </td>
+                #}
                 <td>
                     <span id="info">
                     <a href="/updatebooking/{{ booking.bookingId }}" class="updateBooking"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;

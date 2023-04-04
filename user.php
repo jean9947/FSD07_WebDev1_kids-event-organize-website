@@ -81,7 +81,7 @@ $app->post('/register', function ($request, $response, $args) use ($log) {
       $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
       $password ="";
   }
-  $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
   // validate phone
   if (preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", $phoneNumber) !== 1) {
       $errorList[] ="Phone number format is 000-000-0000";
@@ -91,7 +91,13 @@ $app->post('/register', function ($request, $response, $args) use ($log) {
   if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
       $errorList[] = "Email does not look valid";
       $email = "";
-  }
+  } else {
+    $emailRecord = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
+    if ($emailRecord) {
+        $errorList[] = "This email is already registered";
+        $email = "";
+      }
+}
 
   if ($errorList) { // STATE 2: errors
       $valuesList = ['firstName' => $firstName, 'lastName' => $lastName, 'username' => $username, 
@@ -104,7 +110,7 @@ $app->post('/register', function ($request, $response, $args) use ($log) {
       $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
       DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
       'password' => $hashedPassword, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => "parent"]);
-      $log->info("New user registered", ['username' => $username]);
+      $log->info("New user registered ", ['username' => $username]);
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
@@ -118,7 +124,7 @@ $app->get('/login', function ($request, $response, $args) {
 });
    
 // SATE 2&3: receiving a submission
-$app->post('/login', function (Request $request, Response $response, $args) {
+$app->post('/login', function (Request $request, Response $response, $args) use ($log) {
   $data = $request->getParsedBody();
   $username = $data['username'];
   $password = $data['password'];
@@ -147,6 +153,7 @@ $app->post('/login', function (Request $request, Response $response, $args) {
 
   if ($errorList) { // STATE 2: errors
     $valuesList = ['usernamed' => $username, 'password' => $password];
+    $log->warning('Login failed for user ' . $username);
     return $this->get('view')->render($response, 'login.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } 
 
@@ -154,18 +161,20 @@ $app->post('/login', function (Request $request, Response $response, $args) {
     unset($userRecord['password']);
     $_SESSION['user'] = $userRecord;
     setFlashMessage("Welcome back admin " . $userRecord['username']);
+    $log->info('Admin ' . $userRecord['username'] . ' logged in');
     return $response->withHeader('Location', '/admin')->withStatus(302);
   } elseif ($loginSuccessful) { // logged in as a customer
     unset($userRecord['password']);
     $_SESSION['user'] = $userRecord;
     setFlashMessage("Welcome back " . $userRecord['username']);
+    $log->info('User ' . $userRecord['username'] . ' logged in');
     return $response->withHeader('Location', '/')->withStatus(302);
   } 
 });
 
 
 /**Log Out */
-$app->get('/logout', function ($request, $response, $args) {
+$app->get('/logout', function ($request, $response, $args) use ($log) {
   unset($_SESSION['user']);
   session_destroy();
   setFlashMessage("You've been logged out.");
@@ -184,7 +193,7 @@ $app->get('/passwordresetrequest', function ($request, $response, $args) {
   }
 });
 
-$app->post('/passwordresetrequest', function ($request, $response, $args) {
+$app->post('/passwordresetrequest', function ($request, $response, $args) use ($log) {
   ob_start();
   $data = $request->getParsedBody();
   $email = $data['email'];
@@ -229,12 +238,15 @@ $app->post('/passwordresetrequest', function ($request, $response, $args) {
       $mail->Body    = 'Please click on the following link to reset your password: ' . 'http://' . $_SERVER['HTTP_HOST'] . '/passwordreset/' . $token;
       if (!$mail->send()) {
           setFlashMessage("Failed to send password reset email: " . $mail->ErrorInfo);
+          $log->error("Failed to send password reset email to $email: " . $mail->ErrorInfo);
       } else {
           DB::update('users', ['token' => $token], "email=%s", $email);
           setFlashMessage("Password reset email has been sent to $email");
+          $log->info("Password reset email has been sent to $email");
       }
     } catch (Exception $e) {
         setFlashMessage("Failed to send password reset email");
+        $log->error("Failed to send password reset email to $email: " . $e->getMessage());
     }
     return $response->withHeader('Location', '/')->withStatus(302);
    }
@@ -253,13 +265,15 @@ $app->get('/passwordreset/{token}', function ($request, $response, $args) {
   }
 });
 
-$app->post('/passwordreset/{token}', function ($request, $response, $args) {
+$app->post('/passwordreset/{token}', function ($request, $response, $args) use ($log) {
   $token = $args['token'];
   $data = $request->getParsedBody();
   $email = $data['email'];
   $password1 = $data['password1'];
   $password2 = $data['password2'];
   $errorList = [];
+
+  $log->debug("Received password reset request for email: $email");
 
   // Check if email is registered in the database
   $user = DB::queryFirstRow("SELECT * FROM users WHERE email=%s", $email);
@@ -285,6 +299,7 @@ $app->post('/passwordreset/{token}', function ($request, $response, $args) {
   }
   if ($errorList) { // STATE 2: errors
     $valuesList = ['email' => $email, 'password1' => $password1, 'password2' => $password2];
+    $log->debug("Password reset request failed for email: $email with errors: " . implode(",", $errorList));
     return $this->get('view')->render($response, 'passwordReset.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
   } else { // STATE 3: sucess - reset password and update data to the DB
       global $passwordPepper;
@@ -292,6 +307,7 @@ $app->post('/passwordreset/{token}', function ($request, $response, $args) {
       $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
       DB::update('users', ['password' => $hashedPassword], "email=%s", $email);
       setFlashMessage("Password reset successfully");
+      $log->info("Password reset successfully for email: $email");
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
@@ -360,7 +376,7 @@ $app->get('/booking-form', function( $request, $response, $args) {
 });
 
 // Post data from the form
-$app->post('/booking-form', function ($request, $response, $args) {
+$app->post('/booking-form', function ($request, $response, $args) use($log) {
   $data = $request->getParsedBody();
   $KfirstName = $data['firstName'];
   $KlastName =  $data['lastName'];
@@ -424,8 +440,8 @@ $app->post('/booking-form', function ($request, $response, $args) {
         'quantity' => 1,
       ]],
       'mode' => 'payment',
-      'success_url' => 'https://playroom.fsd07.com/stripe-webhook',
-      'cancel_url' => 'https://playroom.fsd07.com/stripe-webhook',
+      'success_url' => 'https://playroom.fsd07.com/mybookings',
+      'cancel_url' => 'https://playroom.fsd07.com',
       'client_reference_id' => $bookingId,
     ]);
 
@@ -435,7 +451,7 @@ $app->post('/booking-form', function ($request, $response, $args) {
 });
 
 // post webhook page
-$app->post('/stripe-webhook', function ($request, $response, $args) {
+$app->post('/stripe-webhook', function ($request, $response, $args) use($log) {
   $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
   $payload = $request->getBody()->getContents();
   $signature = $request->getHeaderLine('Stripe-Signature');

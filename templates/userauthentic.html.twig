@@ -1,5 +1,5 @@
 {% if session.user is not empty %}
   <p id="p">You are logged in as <span>{{session.user.username}}</span>. Click Here to <a href="/logout"><span>logout</span></a>.</p>
 {% else %}
-  <p id="p"><a href="/login"><span>login</span></a> here! Don't have an account with us?<a href="/register"><span> Register</span></a>!</p>        
+  <p id="p"><a href="/login"><span>Login</span></a> here! Don't have an account with us?<a href="/register"><span> Register</span></a>!</p>        
 {% endif %}

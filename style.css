@@ -740,6 +740,12 @@ button.disabled {
   text-transform: uppercase;
   text-decoration: none;
 }
+
+#form #errorList {
+  text-align: left;
+  color: rgb(246, 69, 25);
+  list-style-type: none;
+}
 /********** END **********/
 
 #myModalLabel {

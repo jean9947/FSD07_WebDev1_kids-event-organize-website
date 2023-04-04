@@ -17,7 +17,7 @@ require_once 'init.php';
 
 
 // Admin dashboard
-$app->get('/admin', function($request, $response, $args) {
+$app->get('/admin', function($request, $response, $args) use ($log) {
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
@@ -59,7 +59,7 @@ $app->get('/admin/adduser', function ($request, $response, $args) {
 });
 
 // SATE 2&3: receiving a submission
-$app->post('/admin/adduser', function ($request, $response, $args) {
+$app->post('/admin/adduser', function ($request, $response, $args) use ($log) {
     $data = $request->getParsedBody();
     $firstName = $data['firstName'];
     $lastName = $data['lastName'];
@@ -118,10 +118,15 @@ $app->post('/admin/adduser', function ($request, $response, $args) {
         if ($errorList) { // STATE 2: errors
         $valuesList = ['firstName' => $firstName, 'lastName' => $lastName, 'username' => $username, 'password' => $password, 
                         'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => $role];
+        $log->info("User added by admin with errors", ['errors' => $errorList, 'values' => $valuesList]);
         return $this->get('view')->render($response, 'admin_adduser.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
         } else { // STATE 3: sucess - add new user to the DB
+            global $passwordPepper;
+            $passwordPepper = hash_hmac('sha256', $password, $passwordPepper);
+            $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
             DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-            'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => $role]);
+            'password' => $hashedPassword, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => $role]);
+            $log->info("New user added by admin ", ['username' => $username]);
             return $response->withHeader('Location', '/admin/users')->withStatus(302);
         }
     } else {
@@ -192,16 +197,6 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
         $errorList[] = "Username must be made up of 4-20 letters, digits, or underscore. The first character must be a letter";
         $username = "";
     } 
-    // validate password
-    if (
-        strlen($password) < 6 || strlen($password) > 100
-        || (preg_match("/[A-Z]/", $password) !== 1)
-        || (preg_match("/[a-z]/", $password) !== 1)
-        || (preg_match("/[0-9]/", $password) !== 1)
-    ) {
-        $errorList[] = "Password must be 6-100 characters long and contain at least one uppercase letter, one lowercase, and one digit.";
-        $password = "";
-    }
     // validate phone
     if (preg_match("/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/", $phoneNumber) !== 1) {
         $errorList[] ="Phone number format is 000-000-0000";
@@ -268,6 +263,7 @@ $app->post('/admin/addbooking', function ($request, $response, $args) {
         $valuesList = ['eventId' => $eventId, 'userId' => $userId, 'childId' => $childId];
         return $this->get('view')->render($response, 'admin_addbooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
         } else { // STATE 3: sucess - add new user to the DB
+            DB::query("UPDATE events SET capacity = capacity - 1, attendeesCount = attendeesCount + 1 WHERE eventId = %i", $eventId);
             DB::insert('bookings', ['bookingId' => NULL, 'eventId' => $eventId, 'userId' => $userId, 'childId' => $childId]);
             return $response->withHeader('Location', '/admin/bookings')->withStatus(302);
         }
@@ -350,6 +346,47 @@ $app->get('/admin/events', function($request, $response) {
     return $this->get('view')->render($response, 'admin_events.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'events' => $events]);
 });
 
+// photo upload verification
+function verifyUploadedPhoto(&$newFilePath, $name) {
+    $photo = $_FILES['photo'];
+    // is there a photo being uploaded and is it okay?
+    if ($photo['error'] != UPLOAD_ERR_OK) {
+        return "Error uploading photo " . $photo['error'];
+    }
+    $info = getimagesize($photo['tmp_name']);
+    // make sure it is an image (jpeg, gif, png or bmp)
+    $ext = "";
+    switch ($info['mime']) {
+        case 'image/jpeg':
+        $ext = "jpg";
+        break;
+        case 'image/gif':
+        $ext = "gif";
+        break;
+        case 'image/png':
+        $ext = "png";
+        break;
+        case 'image/bmp':
+        $ext = "bmp";
+        break;
+        default:
+        return "Only JPG, GIF, PNG, and BMP file types are accepted";
+    }
+    // Check if the file already exists
+    if (file_exists($newFilePath)) {
+    // Generate a random suffix of 10 characters made of letters and digits
+    $suffix = substr(str_shuffle("abcdefghijklmnopqrstuvwxyz0123456789"), 0, 10);
+    // Append the suffix to the file name
+    $file_extension = pathinfo($newFilePath, PATHINFO_EXTENSION);
+    // Sanitize the file name which are not uppercase/lowecase letter, digit, underscore, minus will be replaced with underscore '_'.
+    $sanitized_file_name = preg_replace("/[^A-Za-z0-9_\-]/", "_", $newFilePath);
+    $newFilePath = $sanitized_file_name . '_' . $suffix . '.' . $file_extension;
+    } else {
+    $newFilePath = "uploads/" . $name . "." . $ext;
+    }
+    return true;
+}
+
 /** ADD event */
 $app->get('/admin/addevent', function ($request, $response, $args) {
     $events = DB::query("SELECT * FROM events");
@@ -375,24 +412,42 @@ $app->post('/admin/addevent', function ($request, $response, $args) {
     
     $errorList = [];
 
+    // Verify uploaded photo
+    $largePhotoPath = $_FILES['largePhoto']['tmp_name'];
+    $verifyLResult = verifyUploadedPhoto($largePhotoPath, basename($_FILES['largePhoto']['name']));
+    if ($verifyLResult !== true) {
+        $errorList []= $verifyLResult;
+        $largePhotoPath = "";
+    }
+
+    $smallPhotoPath = $_FILES['smallPhoto']['tmp_name'];
+    $verifySResult = verifyUploadedPhoto($smallPhotoPath, basename($_FILES['smallPhoto']['name']));
+    if ($verifySResult !== true) {
+        $errorList []= $verifySResult;
+        $smallPhotoPath = "";
+    }
+
     if(isset($_SESSION['user'])) {
-       if (!$eventName || !$smallPhotoPath || !$largePhotoPath || !$date || !$startTime || !$endTime || 
+        $smallPhotoPath = verifyUploadedPhoto($_FILES['smallPhoto']['tmp_name'], $_FILES['smallPhoto']['name']);
+        $largePhotoPath = verifyUploadedPhoto($_FILES['largePhoto']['tmp_name'], $_FILES['largePhoto']['name']);
+        if (!$eventName || !$smallPhotoPath || !$largePhotoPath || !$date || !$startTime || !$endTime || 
         !$eventDescription || !$price || !$organizer || !$venue || !$capacity || !$attendeesCount) {
             $errorList []= "Please fill in all";
-        }
-        if ($errorList) { // STATE 2: errors
+    }
+    if ($errorList) { // STATE 2: errors
         $valuesList = ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
         'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
         'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount];
-        } else { // STATE 3: sucess - add new event to the DB
-            DB::insert('event', ['eventId' => NULL, 'eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
-            'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
-            'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount]);
-            return $response->withHeader('Location', '/admin/events')->withStatus(302);
-        } 
+        return $this->get('view')->render($response, 'admin_events.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
+    } else { // STATE 3: sucess - add new event to the DB
+        DB::insert('event', ['eventId' => NULL, 'eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
+        'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
+        'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount]);
+        return $response->withHeader('Location', '/admin/events')->withStatus(302);
+    } 
     } else {
         return $response->withHeader('Location', '/login')->withStatus(302);
-      } 
+    } 
 });
 
 /** UPDATE event */
@@ -436,6 +491,21 @@ $app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
     $attendeesCount = $data['attendeesCount'];
     
     $errorList = [];
+
+    // Verify uploaded photo
+    $largePhotoPath = $_FILES['largePhoto']['tmp_name'];
+    $verifyLResult = verifyUploadedPhoto($largePhotoPath, basename($_FILES['largePhoto']['name']));
+    if ($verifyLResult !== true) {
+        $errorList []= $verifyLResult;
+        $largePhotoPath = "";
+    }
+
+    $smallPhotoPath = $_FILES['smallPhoto']['tmp_name'];
+    $verifySResult = verifyUploadedPhoto($smallPhotoPath, basename($_FILES['smallPhoto']['name']));
+    if ($verifySResult !== true) {
+        $errorList []= $verifySResult;
+        $smallPhotoPath = "";
+    }
 
     if (!$eventName || !$smallPhotoPath || !$largePhotoPath || !$date || !$startTime || !$endTime || 
     !$eventDescription || !$price || !$organizer || !$venue || !$capacity || !$attendeesCount) {

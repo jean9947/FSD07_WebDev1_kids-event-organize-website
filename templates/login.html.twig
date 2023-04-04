@@ -2,21 +2,20 @@
 {% block title %} User Login{% endblock %}
 {% block content %}
 
-{% if errorList %}
-    <ul>
-    {% for error in errorList %}
-        <li>{{ error }}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
-
 <form method="POST" enctype = "multipart/form-data" id="form">
-<h3>User Login</h3><br/>
+  <h3>User Login</h3><br/>
+  {% if errorList %}
+      <ul id="errorList">
+      {% for error in errorList %}
+          <li>{{ error }}</li>
+      {% endfor %}
+      </ul>
+  {% endif %}
   <label id="username">Username</label><br />
   <input  type="text" name="username" value="{{ v.username }}" required /><br /><br />
   <label id="password">Password</label><br />
   <input  type="password"  name="password" value="{{ v.password }}" required /><br /><br />
-  <input type="submit" id="submit" value="Log In"><br /><br />
+  <input type="submit" id="submit" value="LOG IN" style="font-size: 1.5rem"><br /><br />
   <a href="/passwordresetrequest" style="color: #444;"> Forgot your password? </a>
 </form>
 

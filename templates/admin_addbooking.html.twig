@@ -10,18 +10,15 @@
   </head>
   <body>
 
+    <form method="POST" action="/admin/addbooking" id="form">
+    <h3>Add Booking</h3><br />
     {% if errorList %}
-        <ul>
+        <ul id="errorList">
         {% for error in errorList %}
             <li>{{ error }}</li>
         {% endfor %}
         </ul>
     {% endif %}
-
-
-
-    <form method="POST" action="/admin/addbooking" id="form">
-    <h3>Add Booking</h3><br />
         <label id="eventId">Event ID</label><br />
         <input  type="text" name="eventId" value="{{ v.eventId }}" required /><br /><br />
         <label id="userId">User ID</label><br />
