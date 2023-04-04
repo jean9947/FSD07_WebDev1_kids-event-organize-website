@@ -38,19 +38,6 @@ $app->get('/register', function ($request, $response, $args) {
   return $this->get('view')->render($response, 'register.html.twig',['session' => ['user' => $userData]]);
 });
 
-// // *Check if username is taken using AJAX*
-// $app->post('/checkUsername', function ($request, $response, $args) {
-//   $username = $request->getParam('username');
-//   $result = DB::queryFirstRow('SELECT * FROM users WHERE username = %s', $username);
-
-//   if ($result) {
-//       $response->getBody()->write(json_encode(array('taken' => true)));
-//   } else {
-//       $response->getBody()->write(json_encode(array('taken' => false)));
-//   }
-//   return $response->withHeader('Content-Type', 'application/json');
-// });
-
 // SATE 2&3: receiving a submission
 $app->post('/register', function ($request, $response, $args) {
   // $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
@@ -445,8 +432,8 @@ $app->post('/booking-form', function ($request, $response, $args) {
         'quantity' => 1,
       ]],
       'mode' => 'payment',
-      'success_url' => 'http://playroom.org/stripe-webhook',
-      'cancel_url' => 'http://playroom.org/stripe-webhook',
+      'success_url' => 'https://playroom.fsd07.com/stripe-webhook',
+      'cancel_url' => 'https://playroom.fsd07.com/stripe-webhook',
       'client_reference_id' => $bookingId,
     ]);
 
@@ -530,29 +517,23 @@ $app->post('/mybookings', function ($request, $response, $args) {
   $gender = $data['gender'];
   $bookingId = $data['bookingId'];
   $errorList = [];
-
   // $bookingId = $args['bookingId'];
   $childId = DB::queryFirstField("SELECT childId FROM bookings WHERE bookingId = %d", $bookingId);
   // echo $bookingId,$childId;
-
   // $userId = $_SESSION['user']['userId'];
-
   if (strlen($KfirstName) < 2 || strlen($KfirstName) > 100) {
     $errorList []= "First name must be 2-100 characters long";
     $KfirstName = "";
   }
-  
   if (strlen($KlastName) < 2 || strlen($KlastName) > 100) {
     $errorList []= "Last name must be 2-100 characters long";
     $KlastName = "";
   }
-
   $age = date_diff(date_create($birthday), date_create('now'))->y;
   if ($age < 2 || $age > 12) {
     $errorList []= "Your child must between 2-12 years old";
     $birthday = "";
   } 
-
   if (empty($errorList)) {
     DB::update('children', [
       'firstName' => $KfirstName,
@@ -588,38 +569,5 @@ $app->get('/check-children-age', function ($request, $response, $args) {
 $app->get('/edit-booking', function ($request, $response, $args) {
   return $this->view->render($response, 'mybookings.html.twig');
 });
-
-// //post payment
-// $app->post('/checkout', function ($request, $response, $args) use ($twig) {    \Stripe\Stripe::setApiKey('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
-//   $eventId = $request->getParsedBody()['eventId'];
-//   $event = DB::queryFirstRow("SELECT * FROM events WHERE eventId = %i", $eventId);
-//   $checkout_session = \Stripe\Checkout\Session::create([
-//       'payment_method_types' => ['card'],
-//       'line_items' => [[
-//         'price_data' => [
-//           'currency' => 'cad',
-//           'unit_amount' => $event['price']*100,     
-//           'product_data' => [
-//             'name' => $event['eventName'],
-//             'description' => $event['eventDescription'],
-//           ],
-//         ],
-//         'quantity' => 1,
-//       ]],
-//       'mode' => 'payment',
-//       'success_url' => 'http://playroom.org/mybookings',
-//       'cancel_url' => 'http://playroom.org/mybookings',
-//   ]);
-
-//   $response->getBody()->write($twig->render('checkout1.html.twig', [
-//     'sessionId' => $checkout_session->id
-// ]));
-
-// return $response;
-// });
-
-
-
-
 
 // // $app->run();
