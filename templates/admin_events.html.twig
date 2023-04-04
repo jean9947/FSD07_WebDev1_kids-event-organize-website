@@ -59,58 +59,13 @@
                     </td>
                     <td>
                         <span id="info">
-                        <a href="#" class="updateEvent" data-target="#update-modal" data-user-id="{{ event.eventId }}"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
+                        <a href="/updateevent/{{ event.eventId }}" class="updateEvent"><i class="fa fa-edit fa-fw" style="color: #444;"></i></a>&nbsp;&nbsp;
                         <a href="#" class="deleteEvent" data-target="#confirm-delete-modal" data-user-id="{{ event.eventId }}"><i class="fa fa-trash fa-fw" style="color: #444;"></i></a>
                         </span>
                     </td>
                 </tr>
             </tbody>
     {% endfor %}
-
-    <div class="modal" id="update-modal">
-        <div class="modal-dialog">
-            <div class="modal-content" style="background-color: #FFF8F8">
-                <div class="modal-body">
-                    {% if errorList %}
-                        <ul id="errorList">
-                        {% for error in errorList %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <form method="POST">
-                    <h3>Update Event</h3><br />
-                        <label id="smallPhotoPath">Small Photo Path</label><br />
-                        <input  type="file" name="smallPhotoPath" value="{{ v.smallPhotoPath }}" required /><br /><br />
-                        <label id="largePhotoPath">Large Photo Path</label><br />
-                        <input  type="file" name="largePhotoPath" value="{{ v.largePhotoPath }}" required /><br /><br />
-                        <label id="date">Date</label><br />
-                        <input  type="date" name="date" placeholder="{{ eventRecord.date }}" value="{{ v.date }}" required /><br /><br />
-                        <label id="startTime">Start Time</label><br />
-                        <input  type="time" name="startTime" placeholder="{{ eventRecord.startTime }}" value="{{ v.startTime }}" required /><br /><br />
-                        <label id="endTime">End Time</label><br />
-                        <input  type="time" name="endTime" placeholder="{{ eventRecord.endTime }}" value="{{ v.endTime }}" required /><br /><br />
-                        <label id="eventDescription">Event Description</label><br />
-                        <input  type="textbox" name="eventDescription" placeholder="{{ eventRecord.eventDescription }}" value="{{ v.eventDescription }}" required /><br /><br />
-                        <label id="price">Price</label><br />
-                        <input  type="number" min="1" step="any" name="price" placeholder="{{ eventRecord.price }}" value="{{ v.price }}" required /><br /><br />
-                        <label id="organizer">Organizer</label><br />
-                        <input  type="text" name="organizer" placeholder="{{ eventRecord.organizer }}" value="{{ v.organizer }}" required /><br /><br />
-                        <label id="venue">Venue</label><br />
-                        <input  type="text" name="venue" placeholder="{{ eventRecord.venue }}" value="{{ v.venue }}" required /><br /><br />
-                        <label id="capacity">Capacity</label><br />
-                        <input  type="number" name="capacity" placeholder="{{ eventRecord.capacity }}" value="{{ v.capacity }}" required /><br /><br />
-                        <label id="attendeesCount">Attendees Count</label><br />
-                        <input  type="number" name="attendeesCount" placeholder="{{ eventRecord.attendeesCount }}" value="{{ v.attendeesCount }}" required /><br /><br />
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-outline-success" id="confirm-update-button">Update</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="modal" id="confirm-delete-modal">
         <div class="modal-dialog">
@@ -143,24 +98,18 @@
             }
             });
         }); 
-        $(".updateEvent").on("click", function(e) {
-            e.preventDefault();
-            var eventId = $(this).data("id");
-            var modalId = $(this).data("target");
-            $(modalId).modal("show");
-            $("#confirm-update-button").on("click", function() { 
-                $(modalId).modal("hide"); 
-                $.ajax({
-                    type: "POST",
-                    url: "/admin/events/" + eventId,
-                    data: {eventId: eventId},
-                    success: function() {
-                        window.location.reload(); 
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error(errorThrown);
-                    }
-                });
+        $(".updateEvent").on("click", function(event) {
+            event.preventDefault(); 
+            var eventId = $(this).attr("href").split('/')[2]; // extract eventId from href attribute
+            $.ajax({
+                type: "POST",
+                url: "/admin/updateevent/" + eventId,
+                success: function() {
+                    window.location.href = "/admin/updateevent/" + eventId; 
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                }
             });
         });
         $(".deleteEvent").on("click", function(e) {
@@ -175,7 +124,7 @@
                     url: "/admin/events/" + eventId,
                     data: {eventId: eventId},
                     success: function() {
-                        window.location.reload(); 
+                        window.location.href = "/admin/events" 
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error(errorThrown);

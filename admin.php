@@ -49,7 +49,6 @@ $app->get('/admin/users', function($request, $response) {
 /*************************************************************** */
 
 /** ADD users */
-// STATE 1: first display of the form
 $app->get('/admin/adduser', function ($request, $response, $args) {
     $users = DB::query("SELECT * FROM users");
     $html = $this->get('view')->fetch('admin_adduser.html.twig', [
@@ -58,7 +57,6 @@ $app->get('/admin/adduser', function ($request, $response, $args) {
     return $response->withHeader('Content-Type', 'text/html');
 });
 
-// SATE 2&3: receiving a submission
 $app->post('/admin/adduser', function ($request, $response, $args) use ($log) {
     $data = $request->getParsedBody();
     $firstName = $data['firstName'];
@@ -127,6 +125,7 @@ $app->post('/admin/adduser', function ($request, $response, $args) use ($log) {
             DB::insert('users', ['userId' => NULL, 'username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
             'password' => $hashedPassword, 'phoneNumber' => $phoneNumber, 'email' => $email, 'role' => $role]);
             $log->info("New user added by admin ", ['username' => $username]);
+            setFlashMessage("New user added");
             return $response->withHeader('Location', '/admin/users')->withStatus(302);
         }
     } else {
@@ -141,6 +140,7 @@ $app->delete('/admin/users/{userId}', function ($request, $response, $args) {
     // $userId = $request->getParam('userId');
     $userId = $args['userId'];
     DB::delete('users', 'userId=%d', $userId);
+    setFlashMessage("UserID " . $userId . " deleted");
     return $this->get('view')->render($response, 'admin_users.html.twig');
 });
 
@@ -220,7 +220,6 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
 });
 
 
-
 /************************************** Bookings - CRUD ************************************************** */
 
 /** VIEW all bookings */
@@ -264,6 +263,7 @@ $app->post('/admin/addbooking', function ($request, $response, $args) {
         } else { // STATE 3: sucess - add new user to the DB
             DB::query("UPDATE events SET capacity = capacity - 1, attendeesCount = attendeesCount + 1 WHERE eventId = %i", $eventId);
             DB::insert('bookings', ['bookingId' => NULL, 'eventId' => $eventId, 'userId' => $userId, 'childId' => $childId]);
+            setFlashMessage("New booking added");
             return $response->withHeader('Location', '/admin/bookings')->withStatus(302);
         }
     } else {
@@ -276,6 +276,7 @@ $app->post('/admin/addbooking', function ($request, $response, $args) {
 $app->delete('/admin/bookings/{bookingId}', function ($request, $response, $args) {
     $bookingId = $args['bookingId'];
     DB::delete('bookings', 'bookingId=%d', $bookingId);
+    setFlashMessage("BookingID " . $bookingId . " deleted");
     return $this->get('view')->render($response, 'admin_bookings.html.twig');
 });
 
@@ -327,7 +328,6 @@ $app->post('/admin/updatebooking/{bookingId}', function ($request, $response, $a
         return $response->withHeader('Location', '/admin/bookings')->withStatus(302);
     }
 });
-
 
 
 /************************************** Events ************************************************** */
@@ -441,6 +441,7 @@ $app->post('/admin/addevent', function ($request, $response, $args) {
             DB::insert('event', ['eventId' => NULL, 'eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
             'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
             'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount]);
+            setFlashMessage("New event added");
             return $response->withHeader('Location', '/admin/events')->withStatus(302);
         } 
     } else {
@@ -449,7 +450,7 @@ $app->post('/admin/addevent', function ($request, $response, $args) {
 });
 
 /** UPDATE event */
-$app->get('/admin/events/{eventId}', function ($request, $response, $args) {
+$app->get('/admin/updateevent/{eventId}', function ($request, $response, $args) {
     // Check if user is authenticated
     if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
         setFlashMessage("Admin must log in to edit.");
@@ -463,10 +464,10 @@ $app->get('/admin/events/{eventId}', function ($request, $response, $args) {
     if (!$eventRecord) {
         $response->getBody()->write("Error: event not found");
     }
-    return $this->get('view')->render($response, 'admin_events.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'eventRecord' => $eventRecord]);
+    return $this->get('view')->render($response, 'admin_updateevent.html.twig', ['user' => $userRecord, 'isAdmin' => $isAdmin, 'eventRecord' => $eventRecord]);
 });
 
-$app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
+$app->post('/admin/updateevent/{eventId}', function ($request, $response, $args) {
     $eventId = $args['eventId'];
     // Get the user record based on the provided id
     $eventRecord = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);
@@ -527,5 +528,6 @@ $app->post('/admin/events/{eventgId}', function ($request, $response, $args) {
 $app->delete('/admin/events/{eventId}', function ($request, $response, $args) {
     $eventId = $args['eventId'];
     DB::delete('events', 'eventId=%d', $eventId);
+    setFlashMessage("EventID " . $eventId . " deleted");
     return $this->get('view')->render($response, 'admin_events.html.twig');
 });

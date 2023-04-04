@@ -1,0 +1,55 @@
+{% extends "admin.html.twig" %}
+{% block title %} - Update Event{% endblock %}
+
+{% block content %}
+
+<form method="POST" enctype="multipart/form-data" id="form">
+<h3>Update Event</h3><br />
+{% if errorList %}
+    <ul id="errorList">
+    {% for error in errorList %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+    <label id="smallPhotoPath">Small Photo Path</label><br />
+    <input  type="file" name="smallPhotoPath" value="{{ v.smallPhotoPath }}" /><br /><br />
+    <label id="largePhotoPath">Large Photo Path</label><br />
+    <input  type="file" name="largePhotoPath" value="{{ v.largePhotoPath }}" /><br /><br />
+    <label id="date">Date</label><br />
+    <input  type="date" name="date" value="{{ v.date }}" required /><br /><br />
+    <label id="startTime">Start Time</label><br />
+    <input  type="time" name="startTime" value="{{ v.startTime }}" required /><br /><br />
+    <label id="endTime">End Time</label><br />
+    <input  type="time" name="endTime" value="{{ v.endTime }}" required /><br /><br />
+    <label id="eventDescription">Event Description</label><br />
+    <input  type="textbox" name="eventDescription" placeholder="{{ eventRecord.eventDescription }}" value="{{ v.eventDescription }}" /><br /><br />
+    <label id="price">Price</label><br />
+    <input  type="number" min="1" step="any" name="price" placeholder="{{ eventRecord.price }}" value="{{ v.price }}" required /><br /><br />
+    <label id="organizer">Organizer</label><br />
+    <input  type="text" name="organizer" placeholder="{{ eventRecord.organizer }}" value="{{ v.organizer }}" required /><br /><br />
+    <label id="venue">Venue</label><br />
+    <input  type="text" name="venue" placeholder="{{ eventRecord.venue }}" value="{{ v.venue }}" required /><br /><br />
+    <label id="capacity">Capacity</label><br />
+    <input  type="number" name="capacity" placeholder="{{ eventRecord.capacity }}" value="{{ v.capacity }}" required /><br /><br />
+    <label id="attendeesCount">Attendees Count</label><br />
+    <input  type="number" name="attendeesCount" placeholder="{{ eventRecord.attendeesCount }}" value="{{ v.attendeesCount }}" required /><br /><br />
+    <button type="submit">Save</button>
+    <button type="reset" id="cancelbtn">Cancel</button><br>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#cancelbtn').click(function() {
+        $.ajax({
+            url: "/admin/events",
+            success: function() {
+            window.location.href = "/admin/events";
+            }
+        });
+    });
+});
+</script>
+
+{% endblock content %} 

@@ -119,7 +119,7 @@
                     url: "/admin/users/" + userId,
                     data: {userId: userId},
                     success: function() {
-                        window.location.reload(); 
+                        window.location.href = "/admin/users" 
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error(errorThrown);

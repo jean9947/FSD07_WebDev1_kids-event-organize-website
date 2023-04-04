@@ -117,7 +117,7 @@
                     url: "/admin/bookings/" + bookingId,
                     data: {bookingId: bookingId},
                     success: function() {
-                        window.location.reload(); 
+                        window.location.href = "/admin/bookings"
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error(errorThrown);
