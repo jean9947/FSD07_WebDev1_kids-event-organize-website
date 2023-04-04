@@ -424,8 +424,8 @@ $app->post('/booking-form', function ($request, $response, $args) {
         'quantity' => 1,
       ]],
       'mode' => 'payment',
-      'success_url' => 'https://playroom.fsd07.com/stripe-webhook',
-      'cancel_url' => 'https://playroom.fsd07.com/stripe-webhook',
+      'success_url' => 'https://playroom.fsd07.com/mybookings',
+      'cancel_url' => 'https://playroom.fsd07.com',
       'client_reference_id' => $bookingId,
     ]);
 
@@ -435,56 +435,98 @@ $app->post('/booking-form', function ($request, $response, $args) {
 });
 
 // post webhook page
-$app->post('/stripe-webhook', function ($request, $response, $args) {
-  $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
-  $payload = $request->getBody()->getContents();
-  $signature = $request->getHeaderLine('Stripe-Signature');
-  $event = null;
-  try {
-      $event = Event::constructFrom(
-          json_decode($payload, true),
-          $signature,
-          'we_1MtD0BFIad2TXYCqGRYPYWzW'
-      );
-  } catch(\UnexpectedValueException $e) {
-      //$log->error('Invalid payload', ['exception' => $e]);
-      return $response->withStatus(400);
-  } catch(\Stripe\Exception\SignatureVerificationException $e) {
-      //$log->error('Invalid signature', ['exception' => $e]);
-      return $response->withStatus(400);
-  }
+// $app->post('/stripe-webhook', function ($request, $response, $args) {
+//   $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
+//   $payload = $request->getBody()->getContents();
+//   $signature = $request->getHeaderLine('Stripe-Signature');
+//   $event = null;
+//   try {
+//       $event = Event::constructFrom(
+//           json_decode($payload, true),
+//           $signature,
+//           'we_1MtD0BFIad2TXYCqGRYPYWzW'
+//       );
+//   } catch(\UnexpectedValueException $e) {
+//       //$log->error('Invalid payload', ['exception' => $e]);
+//       return $response->withStatus(400);
+//   } catch(\Stripe\Exception\SignatureVerificationException $e) {
+//       //$log->error('Invalid signature', ['exception' => $e]);
+//       return $response->withStatus(400);
+//   }
 
-  switch ($event->type) {
-      case 'payment_intent.succeeded':
-          // Update the corresponding booking status in the bookings table
-          $bookingId = $event->data->object->client_reference_id;
-          DB::query("UPDATE bookings SET status = 'paid' WHERE bookingId = %i", $bookingId);
-          break;
-      case 'payment_intent.failed':
-          // Update the corresponding booking status in the bookings table
-          $bookingId = $event->data->object->client_reference_id;
-          DB::query("UPDATE bookings SET status = 'failed' WHERE bookingId = %i", $bookingId);
-          break;
-      default:
-          break;
-  }
-  // Return a success response to Stripe
-  return $response->withHeader('Location', "/mybookings")->withStatus(200);
-});
+//   switch ($event->type) {
+//       case 'payment_intent.succeeded':
+//           // Update the corresponding booking status in the bookings table
+//           $bookingId = $event->data->object->client_reference_id;
+//           DB::query("UPDATE bookings SET status = 'paid' WHERE bookingId = %i", $bookingId);
+//           break;
+//       case 'payment_intent.failed':
+//           // Update the corresponding booking status in the bookings table
+//           $bookingId = $event->data->object->client_reference_id;
+//           DB::query("UPDATE bookings SET status = 'failed' WHERE bookingId = %i", $bookingId);
+//           break;
+//       default:
+//           break;
+//   }
+//   // Return a success response to Stripe
+//   return $response->withHeader('Location', "/mybookings")->withStatus(200);
+// });
 
 // list mybookings page
+// $app->get('/mybookings', function ($request, $response, $args) {
+//   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+//   $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
+//   // Fetch bookings only for the logged-in user from the database
+//   $bookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
+//     FROM bookings AS b
+//     JOIN children AS c ON b.childId = c.childId
+//     JOIN users AS u ON b.userId = u.userId
+//     JOIN events AS e ON b.eventId = e.eventId
+//     WHERE DATE(e.date) > CURDATE() AND u.userId = %d", $userId);
+//   // Render the events page using the events data
+//   return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
+// });
+
 $app->get('/mybookings', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
-  // Fetch bookings only for the logged-in user from the database
-  $bookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
-    FROM bookings AS b
-    JOIN children AS c ON b.childId = c.childId
-    JOIN users AS u ON b.userId = u.userId
-    JOIN events AS e ON b.eventId = e.eventId
-    WHERE DATE(e.date) > CURDATE() AND u.userId = %d", $userId);
-  // Render the events page using the events data
-  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
+  $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr'); 
+  // Check if the webhook event is payment_intent.success
+  $payload = @file_get_contents('php://input');
+  $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+  $endpoint_secret = 'whsec_O44UTeta6dfgwwpqxEeihQdVVEJFY3vg';
+//   var_dump($_SERVER);
+  $event = null;
+  try {
+      $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
+  } catch(\UnexpectedValueException $e) {
+      // Invalid payload
+      http_response_code(400);
+      exit();
+  } catch(\Stripe\Exception\SignatureVerificationException $e) {
+      // Invalid signature
+      http_response_code(400);
+      exit();
+  }
+
+  if ($event->type == 'payment_intent.success') {
+      // Update the bookings table to set status as paid
+      DB::query("UPDATE bookings SET status = 'paid' WHERE userId = %d", $userId);
+  } else {
+      // Update the bookings table to set status as failed
+      DB::query("UPDATE bookings SET status = 'failed' WHERE userId = %d", $userId);
+  }
+
+  // Fetch only the bookings with status as paid from the database
+  $paidBookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
+      FROM bookings AS b
+      JOIN children AS c ON b.childId = c.childId
+      JOIN users AS u ON b.userId = u.userId
+      JOIN events AS e ON b.eventId = e.eventId
+      WHERE DATE(e.date) > CURDATE() AND u.userId = %d AND b.status = 'paid'", $userId);
+
+  // Render the events page using the paid bookings data
+  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $paidBookings,'session' => ['user' => $userData]]);
 });
 
 $app->post('/mybookings', function ($request, $response, $args) {  
