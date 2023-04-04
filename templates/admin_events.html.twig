@@ -80,22 +80,16 @@
                     {% endif %}
                     <form method="POST">
                     <h3>Update Event</h3><br />
-                        <label id="eventName">Event Name</label><br />
-                        <select id="eventName" name="eventId"style="width:268px">
-                            {% for event in events %}
-                                <option value="{{ event.eventId }}">{{ event.eventName }}</option>
-                            {% endfor %}
-                        </select><br>
                         <label id="smallPhotoPath">Small Photo Path</label><br />
                         <input  type="file" name="smallPhotoPath" value="{{ v.smallPhotoPath }}" required /><br /><br />
                         <label id="largePhotoPath">Large Photo Path</label><br />
                         <input  type="file" name="largePhotoPath" value="{{ v.largePhotoPath }}" required /><br /><br />
                         <label id="date">Date</label><br />
-                        <input  type="date" name="date" value="{{ v.date }}" required /><br /><br />
+                        <input  type="date" name="date" placeholder="{{ eventRecord.date }}" value="{{ v.date }}" required /><br /><br />
                         <label id="startTime">Start Time</label><br />
-                        <input  type="time" name="startTime" value="{{ v.startTime }}" required /><br /><br />
+                        <input  type="time" name="startTime" placeholder="{{ eventRecord.startTime }}" value="{{ v.startTime }}" required /><br /><br />
                         <label id="endTime">End Time</label><br />
-                        <input  type="time" name="endTime" value="{{ v.endTime }}" required /><br /><br />
+                        <input  type="time" name="endTime" placeholder="{{ eventRecord.endTime }}" value="{{ v.endTime }}" required /><br /><br />
                         <label id="eventDescription">Event Description</label><br />
                         <input  type="textbox" name="eventDescription" value="{{ v.eventDescription }}" required /><br /><br />
                         <label id="price">Price</label><br />

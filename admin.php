@@ -177,7 +177,6 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
     $firstName = $data['firstName'];
     $lastName = $data['lastName'];
     $username = $data['username'];
-    $password = $data['password'];
     $phoneNumber = $data['phoneNumber'];
     $email = $data['email'];
     
@@ -210,11 +209,11 @@ $app->post('/admin/updateuser/{userId}', function ($request, $response, $args) {
 
     if ($errorList) { // STATE 2: errors
         $valuesList = ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-        'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email];
+        'phoneNumber' => $phoneNumber, 'email' => $email];
         return $this->get('view')->render($response, 'admin_updateuser.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
     } else { // STATE 3: sucess - update the user from the database
     DB::update('users', ['username' => $username, 'firstName' => $firstName, 'lastName' => $lastName, 
-    'password' => $password, 'phoneNumber' => $phoneNumber, 'email' => $email], "userId=%i", $userId);
+    'phoneNumber' => $phoneNumber, 'email' => $email], "userId=%i", $userId);
     setFlashMessage("UserID " . $userId . " updated");
     return $response->withHeader('Location', '/admin/users')->withStatus(302);
     }

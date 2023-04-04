@@ -112,14 +112,17 @@ $app->post('/register', function ($request, $response, $args) use ($log) {
 
 
 /**Log In */
-// STATE 1: first display of the form
 $app->get('/login', function ($request, $response, $args) {
-  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
-  return $this->get('view')->render($response, 'login.html.twig',['session' => ['user' => $userData]]);
-});
-   
-// SATE 2&3: receiving a submission
-$app->post('/login', function (Request $request, Response $response, $args) {
+    // Check if a user is already logged in
+    if (isset($_SESSION['user'])) {
+        setFlashMessage("You're already logged in");
+        return $response->withHeader('Location', '/')->withStatus(302);
+    }
+    $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+    return $this->get('view')->render($response, 'login.html.twig',['session' => ['user' => $userData]]);
+  });
+
+$app->post('/login', function (Request $request, Response $response, $args) use($log) {
   $data = $request->getParsedBody();
   $username = $data['username'];
   $password = $data['password'];
@@ -155,11 +158,13 @@ $app->post('/login', function (Request $request, Response $response, $args) {
     unset($userRecord['password']);
     $_SESSION['user'] = $userRecord;
     setFlashMessage("Welcome back admin " . $userRecord['username']);
+    $log->info("Welcome back admin " . $userRecord['username']);
     return $response->withHeader('Location', '/admin')->withStatus(302);
   } elseif ($loginSuccessful) { // logged in as a customer
     unset($userRecord['password']);
     $_SESSION['user'] = $userRecord;
     setFlashMessage("Welcome back " . $userRecord['username']);
+    $log->info("Welcome back " . $userRecord['username']);
     return $response->withHeader('Location', '/')->withStatus(302);
   } 
 });
@@ -168,10 +173,10 @@ $app->post('/login', function (Request $request, Response $response, $args) {
 /**Log Out */
 $app->get('/logout', function ($request, $response, $args) {
   unset($_SESSION['user']);
-  session_destroy();
-  setFlashMessage("You've been logged out.");
+//   session_destroy();
+  setFlashMessage("You've been logged out");
   return $response->withHeader('Location', '/')->withStatus(302);
-})->setName('logout');
+});
 
 
 /**Password Reset Request */
@@ -185,7 +190,7 @@ $app->get('/passwordresetrequest', function ($request, $response, $args) {
   }
 });
 
-$app->post('/passwordresetrequest', function ($request, $response, $args) {
+$app->post('/passwordresetrequest', function ($request, $response, $args) use($log) {
   ob_start();
   $data = $request->getParsedBody();
   $email = $data['email'];
@@ -233,9 +238,11 @@ $app->post('/passwordresetrequest', function ($request, $response, $args) {
       } else {
           DB::update('users', ['token' => $token], "email=%s", $email);
           setFlashMessage("Password reset email has been sent to $email");
+          $log->info("Password reset email has been sent to $email");
       }
     } catch (Exception $e) {
         setFlashMessage("Failed to send password reset email");
+        $log->info("Failed to send password reset email");
     }
     return $response->withHeader('Location', '/')->withStatus(302);
    }
@@ -254,7 +261,7 @@ $app->get('/passwordreset/{token}', function ($request, $response, $args) {
   }
 });
 
-$app->post('/passwordreset/{token}', function ($request, $response, $args) {
+$app->post('/passwordreset/{token}', function ($request, $response, $args) use($log) {
   $token = $args['token'];
   $data = $request->getParsedBody();
   $email = $data['email'];
@@ -293,6 +300,7 @@ $app->post('/passwordreset/{token}', function ($request, $response, $args) {
       $hashedPassword = password_hash($passwordPepper, PASSWORD_DEFAULT);
       DB::update('users', ['password' => $hashedPassword], "email=%s", $email);
       setFlashMessage("Password reset successfully");
+      $log->info("Password reset for" . $user['username']);
       return $response->withHeader('Location', '/login')->withStatus(302);
   }
 });
@@ -429,9 +437,8 @@ $app->post('/booking-form', function ($request, $response, $args) {
       'cancel_url' => 'https://playroom.fsd07.com',
       'client_reference_id' => $bookingId,
     ]);
-
+    
     $url = $session->url;
-    $_SESSION['flash'] = ['type' => 'success', 'message' => 'Booking created successfully.'];
     return $response->withHeader('Location', $url)->withStatus(302);
   }
 });
@@ -486,7 +493,7 @@ $app->get('/mybookings', function ($request, $response, $args) {
     JOIN events AS e ON b.eventId = e.eventId
     WHERE DATE(e.date) > CURDATE() AND u.userId = %d", $userId);
   // Render the events page using the events data
-  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
+  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings, 'session' => ['user' => $userData]]);
 });
 
 // $app->get('/mybookings', function ($request, $response, $args) {

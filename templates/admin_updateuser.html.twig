@@ -13,16 +13,16 @@
     </ul>
 {% endif %}
     <label id="firstName">First Name</label><br />
-    <input  type="text" name="firstName" value="{{ v.firstName }}" required /><br /><br />
+    <input  type="text" name="firstName" placeholder="{{ userResult.firstName }}" value="{{ v.firstName }}" required /><br /><br />
     <label id="lastName">Last Name</label><br />
-    <input  type="text"name="lastName" value="{{ v.lastName }}" required /><br /><br />
+    <input  type="text"name="lastName" placeholder="{{ userResult.lastName }}" value="{{ v.lastName }}" required /><br /><br />
     <label id="username">Username</label><br />
-    <input  type="text" name="username" value="{{ v.username }}" required /><br /><br />
+    <input  type="text" name="username" placeholder="{{ userResult.username }}" value="{{ v.username }}" required /><br /><br />
     <span id="username-error" style="color: red;"></span>
     <label id="phoneNumber">Phone Number</label><br />
-    <input  type="tel" placeholder="000-000-0000" name="phoneNumber" value="{{ v.phoneNumber }}" required /><br /><br />
+    <input  type="tel" placeholder="{{ userResult.phoneNumber }}" name="phoneNumber" value="{{ v.phoneNumber }}" required /><br /><br />
     <label id="uname">Email</label><br />
-    <input type="email" name="email" value="{{ v.email }}" required /><br /><br />
+    <input type="email" name="email" placeholder="{{ userResult.email }}" value="{{ v.email }}" required /><br /><br />
     <button type="submit">Save</button>
     <button type="reset" id="cancelbtn">Cancel</button><br>
 </form>
