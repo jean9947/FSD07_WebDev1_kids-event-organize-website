@@ -626,14 +626,14 @@ button.disabled {
   text-align: center;
 }
 
-#tbList tbody:nth-child(even) {
-	background-color: #c7dcd8;
-}
 /* #tbList tbody:nth-child(even) {
-	background-color: #f6e3db;
+	background-color: #c7dcd8;
 } */
+#tbList tbody:nth-child(even) {
+  background-color: #c7dcd8;
+}
 
-#tbList tbody > tr:hover {
+#tbList tbody:hover {
   background-color: #f6e3db;
 }
 
