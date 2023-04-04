@@ -218,12 +218,6 @@ $app->post('/passwordresetrequest', function ($request, $response, $args) {
     try {
       $mail = new PHPMailer(true);
       $mail->isSMTP(); 
-      // $mail->Host       = 'smtp.gmail.com'; 
-      // $mail->SMTPAuth   = true;
-      // $mail->Username   = 'playroomfsd07@gmail.com'; 
-      // $mail->Password   = 'Playroom@fsd07'; 
-      // $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
-      // $mail->Port       = 587; 
       $mail->Host = 'smtp.mailtrap.io';
       $mail->SMTPAuth = true;
       $mail->Port = 587;
@@ -442,6 +436,7 @@ $app->post('/booking-form', function ($request, $response, $args) {
   }
 });
 
+// post webhook page
 $app->post('/stripe-webhook', function ($request, $response, $args) {
   $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
   $payload = $request->getBody()->getContents();
@@ -460,13 +455,7 @@ $app->post('/stripe-webhook', function ($request, $response, $args) {
       //$log->error('Invalid signature', ['exception' => $e]);
       return $response->withStatus(400);
   }
-  // $payload = json_encode([
-  //   'type' => $event->type,
-  //   'data' => $event->data,
-  //   'created' => time()
-  // ]);
 
-  // Handle the Stripe webhook event based on its type
   switch ($event->type) {
       case 'payment_intent.succeeded':
           // Update the corresponding booking status in the bookings table
@@ -479,19 +468,11 @@ $app->post('/stripe-webhook', function ($request, $response, $args) {
           DB::query("UPDATE bookings SET status = 'failed' WHERE bookingId = %i", $bookingId);
           break;
       default:
-          // Handle other event types
           break;
   }
-
   // Return a success response to Stripe
   return $response->withHeader('Location', "/mybookings")->withStatus(200);
 });
-
-/**************************************************************************************** */
-/**Payment */
-
-
-/**************************************************************************************** */
 
 // list mybookings page
 $app->get('/mybookings', function ($request, $response, $args) {
