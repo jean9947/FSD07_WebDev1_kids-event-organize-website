@@ -263,6 +263,7 @@ $app->post('/admin/addbooking', function ($request, $response, $args) {
         $valuesList = ['eventId' => $eventId, 'userId' => $userId, 'childId' => $childId];
         return $this->get('view')->render($response, 'admin_addbooking.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
         } else { // STATE 3: sucess - add new user to the DB
+            DB::query("UPDATE events SET capacity = capacity - 1, attendeesCount = attendeesCount + 1 WHERE eventId = %i", $eventId);
             DB::insert('bookings', ['bookingId' => NULL, 'eventId' => $eventId, 'userId' => $userId, 'childId' => $childId]);
             return $response->withHeader('Location', '/admin/bookings')->withStatus(302);
         }
