@@ -472,64 +472,64 @@ $app->post('/booking-form', function ($request, $response, $args) {
 //   return $response->withHeader('Location', "/mybookings")->withStatus(200);
 // });
 
-// list mybookings page
-// $app->get('/mybookings', function ($request, $response, $args) {
-//   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
-//   $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
-//   // Fetch bookings only for the logged-in user from the database
-//   $bookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
-//     FROM bookings AS b
-//     JOIN children AS c ON b.childId = c.childId
-//     JOIN users AS u ON b.userId = u.userId
-//     JOIN events AS e ON b.eventId = e.eventId
-//     WHERE DATE(e.date) > CURDATE() AND u.userId = %d", $userId);
-//   // Render the events page using the events data
-//   return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
-// });
-
+list mybookings page
 $app->get('/mybookings', function ($request, $response, $args) {
   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
   $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
-  $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr'); 
-  // Check if the webhook event is payment_intent.success
-  $payload = @file_get_contents('php://input');
-  $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-  $endpoint_secret = 'whsec_O44UTeta6dfgwwpqxEeihQdVVEJFY3vg';
-  var_dump($_SERVER);
-  $event = null;
-  try {
-      $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
-  } catch(\UnexpectedValueException $e) {
-      // Invalid payload
-      http_response_code(400);
-      exit();
-  } catch(\Stripe\Exception\SignatureVerificationException $e) {
-      // Invalid signature
-      http_response_code(400);
-      exit();
-  }
-
-  $bookingId = DB::queryFirstField("SELECT LAST_INSERT_ID() FROM bookings");
-
-  if ($event->type == 'payment_intent.success') {
-      // Update the bookings table to set status as paid
-      DB::update('bookings', ['status' => "paid"], "bookingId = %d", $bookingId);
-  } else {
-      // Update the bookings table to set status as failed
-      DB::update('bookings', ['status' => "failed"], "bookingId = %d", $bookingId);
-  }
-
-  // Fetch only the bookings with status as paid from the database
-  $paidBookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
-      FROM bookings AS b
-      JOIN children AS c ON b.childId = c.childId
-      JOIN users AS u ON b.userId = u.userId
-      JOIN events AS e ON b.eventId = e.eventId
-      WHERE DATE(e.date) > CURDATE() AND u.userId = %d AND b.status = 'paid'", $userId);
-
-  // Render the events page using the paid bookings data
-  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $paidBookings,'session' => ['user' => $userData]]);
+  // Fetch bookings only for the logged-in user from the database
+  $bookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
+    FROM bookings AS b
+    JOIN children AS c ON b.childId = c.childId
+    JOIN users AS u ON b.userId = u.userId
+    JOIN events AS e ON b.eventId = e.eventId
+    WHERE DATE(e.date) > CURDATE() AND u.userId = %d", $userId);
+  // Render the events page using the events data
+  return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $bookings,'session' => ['user' => $userData]]);
 });
+
+// $app->get('/mybookings', function ($request, $response, $args) {
+//   $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+//   $userId = isset($_SESSION['user']['userId']) ? $_SESSION['user']['userId'] : null;
+//   $stripe = new \Stripe\StripeClient('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr'); 
+//   // Check if the webhook event is payment_intent.success
+//   $payload = @file_get_contents('php://input');
+//   $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+//   $endpoint_secret = 'whsec_O44UTeta6dfgwwpqxEeihQdVVEJFY3vg';
+//   var_dump($_SERVER);
+//   $event = null;
+//   try {
+//       $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
+//   } catch(\UnexpectedValueException $e) {
+//       // Invalid payload
+//       http_response_code(400);
+//       exit();
+//   } catch(\Stripe\Exception\SignatureVerificationException $e) {
+//       // Invalid signature
+//       http_response_code(400);
+//       exit();
+//   }
+
+//   $bookingId = DB::queryFirstField("SELECT LAST_INSERT_ID() FROM bookings");
+
+//   if ($event->type == 'payment_intent.success') {
+//       // Update the bookings table to set status as paid
+//       DB::update('bookings', ['status' => "paid"], "bookingId = %d", $bookingId);
+//   } else {
+//       // Update the bookings table to set status as failed
+//       DB::update('bookings', ['status' => "failed"], "bookingId = %d", $bookingId);
+//   }
+
+//   // Fetch only the bookings with status as paid from the database
+//   $paidBookings = DB::query("SELECT c.firstName, c.lastName, u.userId, e.eventName, e.date, e.startTime, e.endTime, e.price, e.venue, e.smallPhotoPath, b.bookingId, e.eventId,e.capacity,e.attendeesCount
+//       FROM bookings AS b
+//       JOIN children AS c ON b.childId = c.childId
+//       JOIN users AS u ON b.userId = u.userId
+//       JOIN events AS e ON b.eventId = e.eventId
+//       WHERE DATE(e.date) > CURDATE() AND u.userId = %d AND b.status = 'paid'", $userId);
+
+//   // Render the events page using the paid bookings data
+//   return $this->get('view')->render($response, 'mybookings.html.twig', ['bookings' => $paidBookings,'session' => ['user' => $userData]]);
+// });
 
 $app->post('/mybookings', function ($request, $response, $args) {  
   
