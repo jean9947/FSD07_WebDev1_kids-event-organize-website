@@ -12,7 +12,8 @@ use Slim\Flash\Messages;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
-// use Slim\Routing\RouteCollectorProxy;
+use Stripe\Stripe;
+use Stripe\Charge;
 
 require_once 'init.php';
 
@@ -406,12 +407,55 @@ $app->post('/booking-form', function ($request, $response, $args) {
       'childId' => $childId
     ]);
     $bookingId = DB::queryFirstField("SELECT LAST_INSERT_ID() FROM bookings");
-    $price = DB::query("SELECT price FROM events WHERE eventId = %i", $eventId);
-    $priceValue = (float) $price[0]['price'];
-     return $this->get('view')->render($response, 'checkout.html.twig', ['eventId' =>
-  $eventId, 'bookingId' => $bookingId, 'price' => $priceValue]); 
+    // $price = DB::query("SELECT price FROM events WHERE eventId = %i", $eventId);
+    // $priceValue = (float) $price[0]['price'];
+    // return $this->get('view')->render($response, 'checkout1.html.twig', ['eventId' =>
+    // $eventId, 'bookingId' => $bookingId, 'price' => $priceValue]);
+
+    return $response->withRedirect('/checkout/' . $bookingId);
   }
 });
+
+/**************************************************************************************** */
+/**Payment */
+$app->get('/checkout/{bookingId}', function ($request, $response, $args) {
+  $bookingId = $args['bookingId'];
+  $event = DB::queryFirstRow("SELECT * FROM events as e, bookings as b WHERE e.eventId=b.eventId AND b.bookingId=%s", $bookingId);
+  if (!$event) {
+      $response->getBody()->write("Error: booking not found");
+      return $response->withStatus(404);
+  }
+  return $this->get('view')->render($response, 'checkout.html.twig', ['bookingId' => $bookingId, 'event' => $event]);
+});
+
+$app->post('/checkout', function ($request, $response, $args) {
+  $data = $request->getParsedBody();
+  $amount = $_POST['amount'];
+  $token = $_POST['token'];
+
+  // Set the API key
+  Stripe::setApiKey('sk_test_51MspVWEoZgTgZU3qbPZcUTQexNV6PytoQO5CbcBBEmgMdspHj1BwHt4DPJeQhdixD9VcrFHro1YhhnOJxmFU8yIn00ls8PoaAK');
+
+  // Create the charge
+  try {
+    $charge = Charge::create([
+        'amount' => $amount,
+        'currency' => 'CAD',
+        'source' => $token,
+    ]);
+    // Store flash message in session
+    setFlashMessage("Charge successful! Charge ID: " . $charge->id);
+    // $_SESSION['flash_message'] = 'Charge successful! Charge ID: ' . $charge->id;
+    return $response->withHeader('Location', '/mybookings')->withStatus(302);
+
+  } catch (\Exception $e) {
+    setFlashMessage('Error: ' . $e->getMessage());
+    // $_SESSION['flash_message'] = 'Error: ' . $e->getMessage();
+    return $response->withHeader('Location', '/checkout')->withStatus(302);
+  }
+});
+
+/**************************************************************************************** */
 
 // list mybookings page
 $app->get('/mybookings', function ($request, $response, $args) {
@@ -496,103 +540,37 @@ $app->get('/edit-booking', function ($request, $response, $args) {
   return $this->view->render($response, 'mybookings.html.twig');
 });
 
-//post payment
-$app->post('/checkout', function ($request, $response, $args) use ($twig) {    \Stripe\Stripe::setApiKey('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
-  $eventId = $request->getParsedBody()['eventId'];
-  $event = DB::queryFirstRow("SELECT * FROM events WHERE eventId = %i", $eventId);
-  $checkout_session = \Stripe\Checkout\Session::create([
-      'payment_method_types' => ['card'],
-      'line_items' => [[
-        'price_data' => [
-          'currency' => 'cad',
-          'unit_amount' => $event['price']*100,
-          'product_data' => [
-            'name' => $event['eventName'],
-            'description' => $event['eventDescription'],
-          ],
-        ],
-        'quantity' => 1,
-      ]],
-      'mode' => 'payment',
-      'success_url' => 'http://playroom.org/mybookings',
-      'cancel_url' => 'http://playroom.org/mybookings',
-  ]);
+// //post payment
+// $app->post('/checkout', function ($request, $response, $args) use ($twig) {    \Stripe\Stripe::setApiKey('sk_test_51MrqZhFIad2TXYCqhlLDrGvki1RAIsJrWSHObLsAwpwQyxMQ5bLfMp8E5pK79LfKLsGezoo9UKbRm2jqnEwt1j7r00xLUtgCgr');
+//   $eventId = $request->getParsedBody()['eventId'];
+//   $event = DB::queryFirstRow("SELECT * FROM events WHERE eventId = %i", $eventId);
+//   $checkout_session = \Stripe\Checkout\Session::create([
+//       'payment_method_types' => ['card'],
+//       'line_items' => [[
+//         'price_data' => [
+//           'currency' => 'cad',
+//           'unit_amount' => $event['price']*100,     
+//           'product_data' => [
+//             'name' => $event['eventName'],
+//             'description' => $event['eventDescription'],
+//           ],
+//         ],
+//         'quantity' => 1,
+//       ]],
+//       'mode' => 'payment',
+//       'success_url' => 'http://playroom.org/mybookings',
+//       'cancel_url' => 'http://playroom.org/mybookings',
+//   ]);
 
-  $response->getBody()->write($twig->render('checkout1.html.twig', [
-    'sessionId' => $checkout_session->id
-]));
+//   $response->getBody()->write($twig->render('checkout1.html.twig', [
+//     'sessionId' => $checkout_session->id
+// ]));
 
-return $response;
-});
-
-
-/**************************************************************************************** */
-/**Payment */
-
-$app->get('/checkout', function ($request, $response, $args) {
-  $userData = isset($_SESSION['user']) ? $_SESSION['user'] : null;
-  return $this->get('view')->render($response, 'checkout.html.twig',['session' => ['user' => $userData]]);
-});
-
-// $app->post('/checkout', function ($request, $response, $args) {
-//   $amount = $_POST['amount'];
-//   $currency = $_POST['currency'];
-//   $description = $_POST['description'];
-//   $stripeToken = $_POST['stripeToken'];
-
-//   // Set the API key
-//   Stripe::setApiKey(STRIPE_SECRET_KEY);
-
-//   // Create the charge
-//   try {
-//       $charge = Charge::create([
-//           'amount' => $amount,
-//           'currency' => $currency,
-//           'description' => $description,
-//           'source' => $stripeToken,
-//       ]);
-//   } catch (\Exception $e) {
-//       setFlashMessage('Error: ' . $e->getMessage());
-//       return $response->withHeader('Location', $request->getUri()->getPath())->withStatus(302);
-//   }
-
-//   setFlashMessage('Charge successful! Charge ID: ' . $charge->id);
-//   return $response->withHeader('Location', $request->getUri()->getPath())->withStatus(302);
+// return $response;
 // });
 
 
+
+
+
 // // $app->run();
-
-
-
-
-
-// try {
-//   // Create a new Stripe Checkout session
-//   $session = Session::create([
-//       'payment_method_types' => ['card'],
-//       'line_items' => [
-//           [
-//               'price_data' => [
-//                   'currency' => 'usd',
-//                   'unit_amount' => $params['amount'] * 100, // amount in cents
-//                   'product_data' => [
-//                       'name' => 'My Product',
-//                   ],
-//               ],
-//               'quantity' => 1,
-//           ],
-//       ],
-//       'mode' => 'payment',
-//       'success_url' => 'https://example.com/success',
-//       'cancel_url' => 'https://example.com/cancel',
-//   ]);
-
-//   // Redirect the user to the Stripe Checkout page
-//   $response->getBody()->write(json_encode(['sessionId' => $session->id]));
-//   return $response->withHeader('Content-Type', 'application/json');
-// } catch (ApiErrorException $e) {
-//   // Handle Stripe API errors
-//   $response->getBody()->write($e->getMessage());
-//   return $response->withStatus(500);
-// }
