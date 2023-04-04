@@ -438,13 +438,12 @@ $app->post('/admin/addevent', function ($request, $response, $args) {
         $valuesList = ['eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
         'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
         'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount];
-        return $this->get('view')->render($response, 'admin_events.html.twig', ['errorList' => $errorList, 'v' => $valuesList]);
-    } else { // STATE 3: sucess - add new event to the DB
-        DB::insert('event', ['eventId' => NULL, 'eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
-        'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
-        'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount]);
-        return $response->withHeader('Location', '/admin/events')->withStatus(302);
-    } 
+        } else { // STATE 3: sucess - add new event to the DB
+            DB::insert('event', ['eventId' => NULL, 'eventName' => $eventName, 'smallPhotoPath' => $smallPhotoPath, 'largePhotoPath' => $largePhotoPath, 
+            'date' => $date, 'startTime' => $startTime, 'endTime' => $endTime, 'eventDescription' => $eventDescription, 'price' => $price, 
+            'organizer' => $organizer, 'venue' => $venue, 'capacity' => $capacity, 'attendeesCount' => $attendeesCount]);
+            return $response->withHeader('Location', '/admin/events')->withStatus(302);
+        } 
     } else {
         return $response->withHeader('Location', '/login')->withStatus(302);
     } 
