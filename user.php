@@ -464,7 +464,7 @@ $app->post('/stripe-webhook', function ($request, $response, $args) {
       $event = Event::constructFrom(
           json_decode($payload, true),
           $signature,
-          'we_1Mt0bBFIad2TXYCqyXuJX0qt'
+          'we_1MtD0BFIad2TXYCqGRYPYWzW'
       );
   } catch(\UnexpectedValueException $e) {
       //$log->error('Invalid payload', ['exception' => $e]);
