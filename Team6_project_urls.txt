@@ -1,0 +1,16 @@
+
+* Project title
+Playroom - Children's Events Agency
+
+* Names of team members
+Siyi Chen
+ChihYin Chen
+
+* URL to Git repository
+https://github.com/jean9947/FSD07_WebDev1_kids-event-organize-website
+
+* URL to Trello board.
+https://trello.com/b/MKPC1hMf/fsd07webdev1kids-event-organize-website
+
+* URL to the hosted 
+https://playroom.fsd07.com/
