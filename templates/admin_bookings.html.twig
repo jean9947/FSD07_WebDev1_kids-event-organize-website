@@ -92,7 +92,7 @@
         $(".updateBooking").on("click", function(event) {
             // prevent default form submission behavior
             event.preventDefault(); 
-            var bookingId = $(this).attr("href").split('/')[2]; // extract bookingId from href attribute
+            var bookingId = $(this).attr("href").split('/')[2]; 
             $.ajax({
                 type: "POST",
                 url: "/admin/updatebooking/" + bookingId,

@@ -232,7 +232,8 @@ $app->post('/passwordresetrequest', function ($request, $response, $args) use($l
       $mail->addAddress($email); 
       $mail->isHTML(true);
       $mail->Subject = 'Password Reset Request From Playroom';
-      $mail->Body    = 'Please click on the following link to reset your password: ' . 'http://' . $_SERVER['HTTP_HOST'] . '/passwordreset/' . $token;
+      $mail->Body    = 'Please click on the following link to reset your password: ' 
+      . 'http://' . $_SERVER['HTTP_HOST'] . '/passwordreset/' . $token;
       if (!$mail->send()) {
           setFlashMessage("Failed to send password reset email: " . $mail->ErrorInfo);
       } else {
@@ -257,7 +258,8 @@ $app->get('/passwordreset/{token}', function ($request, $response, $args) {
     setFlashMessage("Invalid password reset link");
     return $response->withHeader('Location', '/passwordresetrequest')->withStatus(302);
   } else {
-    return $this->get('view')->render($response, 'passwordReset.html.twig', ['token' => $token, 'user' => $user]);
+    return $this->get('view')->render($response, 
+    'passwordReset.html.twig', ['token' => $token, 'user' => $user]);
   }
 });
 
