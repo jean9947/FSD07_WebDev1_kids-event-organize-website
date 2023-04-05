@@ -1,0 +1,80 @@
+Content of the Presentation
+---------------------------
+* 1 slide: Title
+
+FSD-07 Web Development I Team 6
+Playroom
+ChihYin Chen, Siyi Chen
+
+---------------------------
+* 1 slides: Background, high level view
+	- Background of the project, e.g.
+		. explain a game you were implementing,
+		. explain what was the purpose of system you were implementing and what problem does it solve.
+		. you're NOT talking about your particular solution.
+		. You're talking about the class of solutions.
+		. You can talk about business perspective on this one slide only.
+
+Offers kids events for onine booking and customer management service.
+Customer - booking CRUD
+Admin - users/bookings/events CRUD
+
+---------------------------
+* 2-4 slides: Your solution overview
+	- show your solution from high level, e.g. screenshot(s), list main features from user point of view, features, functionalities. Say WHAT was implemented BUT NO DETAILS ON HOW.
+
+we used: Slim, Twig, Meekrodb, Monolog, Flash, Stripe, phpmailer 
+User: 
+  register - validation form db while registered; forgot password
+  login - while 
+Parent:
+Admin:
+
+---------------------------
+* 4-7 slides: Challenges and solutions
+	- show database structure here
+	- talk about each of the interesting technologies you used and each major problem you had to solve on your own to make the solution work.
+
+Database screenshots
+
+Technology used:
+Slim, Twig, Meekrodb, Monolog, Flash, Stripe, phpmailer 
+
+Struggles and solution:
+Stripe API
+
+fetch id from which's selected and add into the url, direct to another page and fill in the form(which fetch the data from db showing at the placeholder) to update db
+OR Mailtrap API(sent a link, retrive the link with authentic username)
+
+---------------------------
+* 4-7 slides: What we learned - teach it! Teach one or two things.
+	- talk about specific, low-level solutions and teach them to the students and teacher = Teach me how to solve ONE (or two) problem.
+
+Source code:
+Stripe API
+Mailtrap API(sent a link, retrive the link with authentic username)
+
+---------------------------
+* 1 slide: Future work
+	- say what was not done yet and could be solved if your project continued.
+	- don't go too far into the future - what would you have done if you had an extra week?
+
+a) user(customer) profile edit page
+b) user(customer)edit children profile
+c) calander function/ add event to calander
+d) sent email link to active account
+e) pagination
+
+---------------------------
+* 1 slide: Summary
+	- what was done and with what result.
+
+CRUD function for both customer and admin
+
+---------------------------
+
+
+Total slides count ~15-20. You are allowed to add more slides
+only if you can stay within the maximum minute limit for your presentation.
+
+

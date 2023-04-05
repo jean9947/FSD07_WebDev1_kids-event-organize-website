@@ -742,7 +742,7 @@ button.disabled {
   text-decoration: none;
 }
 
-#form #errorList {
+#errorList {
   text-align: left;
   color: rgb(246, 69, 25);
   list-style-type: none;
