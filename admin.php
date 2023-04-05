@@ -275,6 +275,10 @@ $app->post('/admin/addbooking', function ($request, $response, $args) {
 /** DELETE booking */
 $app->delete('/admin/bookings/{bookingId}', function ($request, $response, $args) {
     $bookingId = $args['bookingId'];
+    $booking = DB::queryFirstRow("SELECT * FROM bookings WHERE bookingId=%d", $bookingId);
+    $eventId = $booking['eventId'];
+    $event = DB::queryFirstRow("SELECT * FROM events WHERE eventId=%d", $eventId);
+    DB::update('events', ['capacity' => $event['capacity'] + 1, 'attendeesCount' => $event['attendeesCount'] - 1], "eventId = %d", $eventId);
     DB::delete('bookings', 'bookingId=%d', $bookingId);
     setFlashMessage("BookingID " . $bookingId . " deleted");
     return $this->get('view')->render($response, 'admin_bookings.html.twig');
