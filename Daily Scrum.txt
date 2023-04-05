@@ -237,3 +237,25 @@
 3. Need assistance / figure things out
 - monolog
 
+
+********************************* DEMO DAY **************************************************
+
+2023/04/05 Siyi
+1. Done / not done since the last scrum:
+- continue working online payment processing
+- improve the flash message
+- testing our website
+- improve monolog
+- ppt
+2. To do until the next Scrum:
+3. Need assistance / figure things out
+
+
+2023/04/05 ChihYin
+1. Done / not done since the last scrum:
+- testing our website
+- improve monolog
+- ppt
+2. To do until the next Scrum:
+3. Need assistance / figure things out
+
