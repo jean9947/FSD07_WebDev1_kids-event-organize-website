@@ -43,22 +43,22 @@ $log->pushProcessor(function ($record) {
 // if ($_SERVER['SERVER_NAME'] == 'playroom.org') {
 //     DB::$dbName = 'playroom';
 //     DB::$user = 'playroom';
-//     DB::$password = 'LCjs-BDv_mW8j(0*';
+//     DB::$password = 'your_pw';
 //     DB::$host = 'fsd07.com';
 // } else { // hosted on external server
 //     DB::$dbName = 'cp5065_playroom';
 //     DB::$user = 'cp5065_playroom';
-//     DB::$password = '3c@+.)$(Jw;T';
+//     DB::$password = 'your_pw';
 // }
 if ($_SERVER['SERVER_NAME'] == 'playroom.org') {
     DB::$dbName = 'playroom';
     DB::$user = 'playroom';
-    DB::$password = 'LCjs-BDv_mW8j(0*';
+    DB::$password = 'your_pw';
     DB::$host = 'localhost';
 } else { // hosted on external server
     DB::$dbName = 'cp5065_playroom';
     DB::$user = 'cp5065_playroom';
-    DB::$password = '3c@+.)$(Jw;T';
+    DB::$password = 'your_pw';
 }
 
 
